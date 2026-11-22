@@ -11,7 +11,7 @@ from indicium.review.rules import REFER_FLAGS, diagnosis_covered, recommend
 
 POLICIES = {p.policy_id: p for p in map(read_policy, policy_files([Path("data/policies")]))}
 CASES = read_cases(Path("data/cases"))
-FINDING = {"documented": True, "contradicted": False, "absent": None}
+FINDING = {"documented": True, "contradicted": False, "absent": None, "conflicting": None}
 
 
 def test_dataset_is_big_and_balanced_enough_to_mean_something():
@@ -30,6 +30,8 @@ def test_case_agrees_with_its_policy_notes_and_the_rules(case):
     policy = POLICIES[case.policy_id]
     assert check_case(case, policy) == []
     flags = {t for t in case.tags if t in REFER_FLAGS}
+    if any(label.finding == "conflicting" for label in case.labels.values()):
+        flags.add("conflicting_evidence")
     if not diagnosis_covered(policy, case.request.diagnosis_codes):
         flags.add("diagnosis_not_covered")
     findings = {cid: FINDING[label.finding] for cid, label in case.labels.items()}

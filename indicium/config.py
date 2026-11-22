@@ -4,8 +4,9 @@ A missing or malformed value stops the process at start, not in the middle of a 
 """
 
 from functools import cache
+from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,6 +20,38 @@ class Settings(BaseSettings):
     # from 2026: 72 hours for expedited and 7 calendar days for standard requests.
     sla_expedited_hours: int = Field(72, ge=1)
     sla_standard_hours: int = Field(168, ge=1)
+
+    # Review engine. "baseline" needs no model; "openai" is any OpenAI-compatible server
+    # (Gemini, llama.cpp, Ollama, vLLM, Groq, Azure OpenAI).
+    provider: Literal["baseline", "openai"] = "baseline"
+    openai_base_url: str = ""
+    openai_model: str = ""
+    openai_api_key: SecretStr = SecretStr("")
+    model_timeout_seconds: float = Field(90, gt=0)
+    model_max_retries: int = Field(3, ge=0, le=10)
+    prompt_version: str = Field("extract-v1", pattern=r"^[a-z0-9-]+$")
+    # Below this, a finding is not trusted and the case goes to a person.
+    min_confidence: float = Field(0.6, ge=0, le=1)
+    # Notes up to this size go to the model whole; longer records are cut to relevant excerpts.
+    context_char_budget: int = Field(60_000, ge=2_000)
+    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_cache: str = ".cache/fastembed"
+
+    # Worker
+    worker_poll_seconds: float = Field(1.0, gt=0)
+    worker_lease_seconds: int = Field(900, ge=30)
+    worker_max_attempts: int = Field(3, ge=1)
+
+    @model_validator(mode="after")
+    def _lease_outlasts_the_model(self) -> "Settings":
+        # Worst case for one review: every retry times out, then the repair turn does it again.
+        worst = self.model_timeout_seconds * (self.model_max_retries + 1) * 2
+        if self.worker_lease_seconds <= worst:
+            raise ValueError(
+                f"worker_lease_seconds ({self.worker_lease_seconds}) must exceed the longest model "
+                f"call ({worst:.0f}s), or a second worker would claim a review still in progress"
+            )
+        return self
 
 
 @cache

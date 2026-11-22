@@ -1,7 +1,7 @@
 """Case commands.
 
 python -m indicium.cases check data/cases     validate the labelled dataset against its policies
-python -m indicium.cases load data/cases      store the dataset's requests as cases (demo data)
+python -m indicium.cases load data/cases      store and queue the dataset's requests (demo data)
 """
 
 import argparse
@@ -15,6 +15,7 @@ from indicium.cases.dataset import check_case, read_cases
 from indicium.cases.store import DuplicateRequest, create_case
 from indicium.config import settings
 from indicium.policies.files import policy_files, read_policy
+from indicium.review.worker import enqueue
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -41,7 +42,10 @@ def main(argv: list[str] | None = None) -> int:
         created = 0
         for case in cases:
             try:
-                created += create_case(conn, case.request, "system:dataset-loader")[1]
+                case_id, new = create_case(conn, case.request, "system:dataset-loader")
+                if new:  # a new case is queued for review in the same transaction
+                    enqueue(conn, case_id, "system:dataset-loader")
+                created += new
             except DuplicateRequest:
                 print(f"{case.case_id}: changed since it was loaded; the stored version is kept")
             conn.commit()  # one case per transaction, so one bad case never undoes the others

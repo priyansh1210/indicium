@@ -14,6 +14,7 @@ dependencies = [
     "sqlalchemy>=2.0",
     "httpx>=0.28",
     "pyyaml>=6.0",
+    "fastembed>=0.5",
 ]
 
 [dependency-groups]
@@ -38,7 +39,9 @@ extend-exclude = [".tools", ".uv-cache", ".cache"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
 # S101: asserts are how tests check things. RUF012: pydantic copies list defaults per instance.
-ignore = ["S101", "RUF012"]
+# SIM905: "a b c".split() is the readable way to write a word list.
+ignore = ["S101", "RUF012", "SIM905"]
 
 [tool.ruff.lint.per-file-ignores]
+"indicium/migrations/**" = ["E501"] # aligned SQL column comments
 "tests/**" = ["S105", "S106", "RUF001"] # fixed passwords and look-alike characters are deliberate

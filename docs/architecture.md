@@ -92,6 +92,8 @@ more workers can be added without new infrastructure.
 One interface, three implementations, chosen per run:
 - `baseline`: no model. Sentence embeddings plus negation rules. Deterministic, needs no key;
   CI and the demo use it, and the evals report it as the baseline the language models must beat.
+  Retrieval can find a real sentence that does not mean what a criterion needs, so the baseline
+  reports a confidence below the trust threshold: it highlights evidence and never approves.
 - `openai`: any OpenAI-compatible endpoint (Gemini, Ollama, llama.cpp, vLLM, Groq, Azure OpenAI).
 - Every call has a timeout, retries with backoff on rate limits and server errors, and a token
   count recorded on the run.

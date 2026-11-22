@@ -15,7 +15,7 @@ from indicium.cases.model import CaseRequest
 from indicium.policies.model import Policy, Strict, criteria_of
 from indicium.text import locate
 
-Finding = Literal["documented", "contradicted", "absent"]
+Finding = Literal["documented", "contradicted", "absent", "conflicting"]
 Recommendation = Literal["meets_criteria", "pend_for_info", "refer_to_clinician"]
 
 
@@ -27,7 +27,7 @@ class Evidence(Strict):
 class Label(Strict):
     finding: Finding
     # The sentence(s) a reviewer would point to. Required unless the finding is "absent".
-    evidence: list[Evidence] = []
+    evidence: list[Evidence] = []  # for every finding except "absent"
 
     @model_validator(mode="after")
     def _evidence_matches_finding(self) -> "Label":

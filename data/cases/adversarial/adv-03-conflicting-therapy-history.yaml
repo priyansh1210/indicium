@@ -1,7 +1,7 @@
 case_id: adv-03-conflicting-therapy-history
 policy_id: cms-l36575-total-knee-arthroplasty
 description: The therapy note says 12 weeks of PT were completed; the surgeon's note says PT was never tried. A person must resolve it.
-tags: [conflicting_evidence, multi_document]
+tags: [multi_document]
 request:
   external_id: syn-pa-900103
   patient: {member_id: SYN-990097, name: Douglas Achebe, birth_date: 1954-10-10, sex: male}
@@ -32,7 +32,7 @@ labels:
     finding: documented
     evidence: [{doc_id: surgeon, quote: "Pain limits him to one block."}]
   failed_nonsurgical_management:
-    finding: documented
+    finding: conflicting
     evidence:
       - {doc_id: pt-summary, quote: "completed 12 weeks of supervised physical therapy for right knee osteoarthritis; no functional gains"}
       - {doc_id: surgeon, quote: "Patient has never tried physical therapy and declines injections."}

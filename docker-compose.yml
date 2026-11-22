@@ -37,6 +37,24 @@ services:
         condition: service_completed_successfully
     command: python -m indicium.cases load data/cases
 
+  # Reviews queued cases. Scale with: docker compose up --scale worker=3
+  worker:
+    <<: *py
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: python -m indicium.review.worker
+    environment:
+      INDICIUM_DATABASE_URL: postgresql://indicium:indicium@postgres:5432/indicium
+      INDICIUM_PROVIDER: ${INDICIUM_PROVIDER:-baseline}
+      INDICIUM_OPENAI_BASE_URL: ${INDICIUM_OPENAI_BASE_URL:-}
+      INDICIUM_OPENAI_MODEL: ${INDICIUM_OPENAI_MODEL:-}
+      INDICIUM_OPENAI_API_KEY: ${INDICIUM_OPENAI_API_KEY:-}
+      INDICIUM_PROMPT_VERSION: ${INDICIUM_PROMPT_VERSION:-extract-v1}
+    extra_hosts: ["host.docker.internal:host-gateway"] # reach a model server on the host
+    stop_grace_period: 2m # let a running review finish
+    restart: unless-stopped
+
   api:
     <<: *py
     depends_on:

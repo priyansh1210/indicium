@@ -81,6 +81,29 @@ def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int
     return case_id, True
 
 
+def load_request(conn: Connection, case_id: int) -> CaseRequest:
+    """The request as it was received, rebuilt from the stored case."""
+    case = conn.execute("select * from app.cases where case_id = %s", (case_id,)).fetchone()
+    if not case:
+        raise LookupError(f"case {case_id} does not exist")
+    documents = conn.execute(
+        "select doc_id, kind, author, written_on, text from app.documents"
+        " where case_id = %s order by written_on nulls last, doc_id",
+        (case_id,),
+    ).fetchall()
+    return CaseRequest.model_validate(
+        {
+            "external_id": case["external_id"],
+            "patient": case["patient"],
+            "procedure_code": case["procedure_code"],
+            "diagnosis_codes": case["diagnosis_codes"],
+            "urgency": case["urgency"],
+            "requested_by": case["requested_by"],
+            "documents": documents,
+        }
+    )
+
+
 def set_status(conn: Connection, case_id: int, status: str, actor: str, detail: dict) -> None:
     """Move a case to a new status. The database refuses a move that is not allowed."""
     old = conn.execute(
