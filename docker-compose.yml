@@ -1,0 +1,45 @@
+# Local stack. Credentials are local-only defaults; Postgres is not published to the host.
+x-py: &py
+  image: indicium-py
+  environment:
+    INDICIUM_DATABASE_URL: postgresql://indicium:indicium@postgres:5432/indicium
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: indicium
+      POSTGRES_PASSWORD: indicium
+      POSTGRES_DB: indicium
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U indicium -d indicium"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Runs the migrations once and exits; the API starts only after it succeeds.
+  migrate:
+    <<: *py
+    build: .
+    command: alembic upgrade head
+
+  api:
+    <<: *py
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/ready')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:

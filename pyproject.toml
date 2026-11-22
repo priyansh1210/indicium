@@ -1,0 +1,42 @@
+[project]
+name = "indicium"
+version = "0.1.0"
+description = "Prior-authorization review assistant: evidence-quoted checklists, never an automatic denial"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "psycopg[binary]>=3.2",
+    "psycopg-pool>=3.2",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "alembic>=1.14",
+    "sqlalchemy>=2.0",
+    "httpx>=0.28",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.8",
+    "testcontainers[postgres]>=4.9",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".tools", ".uv-cache", ".cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = ["S101"] # asserts are how tests check things
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"] # fixed passwords in tests are fine
