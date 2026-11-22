@@ -35,3 +35,6 @@ AGENTS.md
 memory/
 MEMORY.md
 .mcp.json
+
+# Raw CMS downloads; regenerate with python -m indicium.policies fetch-cms
+data/policies/drafts/

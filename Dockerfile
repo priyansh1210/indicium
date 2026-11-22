@@ -9,6 +9,7 @@ COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev
 COPY alembic.ini ./
 COPY indicium indicium
+COPY data/policies/*.yaml data/policies/
 RUN useradd --system --uid 10001 indicium
 USER indicium
 EXPOSE 8000

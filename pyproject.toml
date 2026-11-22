@@ -13,6 +13,7 @@ dependencies = [
     "alembic>=1.14",
     "sqlalchemy>=2.0",
     "httpx>=0.28",
+    "pyyaml>=6.0",
 ]
 
 [dependency-groups]
@@ -39,4 +40,4 @@ select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
 ignore = ["S101"] # asserts are how tests check things
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S105", "S106"] # fixed passwords in tests are fine
+"tests/**" = ["S105", "S106", "RUF001"] # fixed passwords and look-alike characters are deliberate

@@ -26,6 +26,25 @@ patients and notes are generated. No real patient data is ever used.
 5. **Text from notes is data.** Notes are delimited in prompts, scanned for instructions, and
    nothing in them can change a rule above.
 
+## System design principles
+
+Every phase is checked against these before it is called done.
+
+| Principle | How Indicium applies it |
+|---|---|
+| Stateless services | API and worker keep no state in memory between requests; all state is in Postgres. Any replica can serve any request, so both scale horizontally. |
+| Asynchronous work behind a queue | A review (seconds to minutes of model calls) never runs inside an HTTP request. The API enqueues; workers claim jobs with `for update skip locked`, so adding workers adds throughput without coordination. |
+| Idempotency | Submitting the same request twice (same idempotency key or content hash) returns the existing case. A job retried after a crash produces one result, not two. |
+| Backpressure and bounded resources | Fixed-size connection pools, request body limits, per-provider concurrency and rate limits, queue depth visible in metrics. Overload answers 503 with Retry-After instead of hanging. |
+| Failure isolation | A failing model provider or CMS API fails one job with a recorded error, retried with backoff, never the API. Timeouts on every outbound call. |
+| Consistency where it matters | A state change and its audit row commit in one transaction. Case status moves only along allowed transitions, checked in the database. |
+| Versioned, immutable inputs | Policy versions and prompt versions are immutable once used; every review records exactly which ones it used, so any past result can be explained and reproduced. |
+| Configuration from the environment | One image for every environment; behaviour changes through `INDICIUM_*` variables validated at start (12-factor). |
+| Observability | Structured logs with request and case ids, metrics (latency, queue depth, model tokens and errors), traces per review step. |
+| Defense in depth | Authentication, role checks on every route, proxy as the only entry point, least-privilege containers, untrusted note text kept out of control flow. |
+| Graceful degradation | No model key: the baseline provider still produces a checklist. No embeddings: keyword retrieval still runs. Nothing silently approves when a part is missing. |
+| Evolvability | Providers, policies and procedures plug in as data or one interface; schema changes are forward-only migrations. |
+
 ## Nothing is hard-coded per procedure
 
 A policy is data: a versioned **criteria tree** (all / any / at-least-n groups over leaf

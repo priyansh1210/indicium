@@ -22,17 +22,20 @@ services:
       timeout: 3s
       retries: 20
 
-  # Runs the migrations once and exits; the API starts only after it succeeds.
+  # Runs migrations and loads the shipped policies, then exits; the API waits for it.
   migrate:
     <<: *py
     build: .
-    command: alembic upgrade head
+    # Loading is idempotent: an unchanged policy file is not stored again.
+    command: sh -c "alembic upgrade head && python -m indicium.policies load data/policies --publish"
 
   api:
     <<: *py
     depends_on:
       migrate:
         condition: service_completed_successfully
+    # shortcut: the API is published directly for local development; in Phase 7 the Caddy proxy
+    # becomes the only entry point and this port mapping goes away.
     ports:
       - "8000:8000"
     healthcheck:
