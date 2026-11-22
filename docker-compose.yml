@@ -17,7 +17,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U indicium -d indicium"]
+      # Over TCP: during first-start init Postgres runs a socket-only temporary server, and a
+      # socket check would report ready before the real server is up.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U indicium -d indicium"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -75,6 +77,23 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  # The nurse and admin screens. The browser talks only to this service; it calls the API itself.
+  web:
+    build: ./web
+    environment:
+      API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    # shortcut: published directly for local use; in Phase 7 the proxy becomes the only way in.
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/login"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
 volumes:
   pgdata:

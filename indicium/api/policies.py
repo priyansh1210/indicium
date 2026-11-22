@@ -5,7 +5,8 @@ from fastapi import APIRouter, HTTPException, Response
 from indicium.api.auth import Manager, Reader
 from indicium.db import Db
 from indicium.policies import store
-from indicium.policies.model import Policy
+from indicium.policies.model import Policy, criteria_of
+from indicium.text import locate
 
 router = APIRouter(prefix="/policies", tags=["policies"])
 
@@ -30,6 +31,11 @@ def read_version(version_id: int, principal: Reader, db: Db) -> dict:
     ).fetchone()
     if not row:
         raise HTTPException(404, "No such policy version")
+    # Where each criterion's source sentence sits in the policy text, for highlighting.
+    policy = Policy.model_validate(row["document"])
+    row["source_spans"] = {
+        c.id: locate(c.source_quote, policy.source_text) for c in criteria_of(policy.criteria)
+    }
     return row
 
 

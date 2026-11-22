@@ -38,3 +38,7 @@ MEMORY.md
 
 # Raw CMS downloads; regenerate with python -m indicium.policies fetch-cms
 data/policies/drafts/
+
+# Web build output and generated files
+web/next-env.d.ts
+web/*.tsbuildinfo

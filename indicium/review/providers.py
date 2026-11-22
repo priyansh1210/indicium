@@ -158,7 +158,7 @@ class BaselineProvider:
                     finding="contradicted" if self.NEGATION.search(sentence.text) else "documented",
                     evidence=[Quote(doc_id=sentence.doc_id, quote=sentence.text)],
                     confidence=self.CONFIDENCE,
-                    rationale=f"Closest sentence (score {best[0][0]:.2f}).",
+                    rationale="Best-matching sentence in the notes; the baseline does not read it.",
                 )
             )
         name = "hybrid-retrieval" if self.model else "keyword-retrieval"

@@ -61,6 +61,17 @@ def submit_fhir(
     return _intake(db, request, principal, response)
 
 
+@router.get("/summary")
+def summary(principal: Reader, db: Db) -> dict:
+    """How many cases are in each status, and how many open ones are past their deadline."""
+    counts = db.execute("select status, count(*) as n from app.cases group by status").fetchall()
+    overdue = db.execute(
+        "select count(*) as n from app.cases"
+        " where due_at < now() and status not in ('approved', 'denied')"
+    ).fetchone()["n"]
+    return {"by_status": {r["status"]: r["n"] for r in counts}, "overdue": overdue}
+
+
 @router.get("")
 def worklist(
     principal: Reader,

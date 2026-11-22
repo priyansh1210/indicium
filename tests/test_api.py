@@ -237,3 +237,13 @@ def test_a_write_is_committed_before_its_response_is_sent(api):
             "select 1 from app.sessions where token_hash = %s", (token_hash(token),)
         ).fetchone()
     assert found
+
+
+def test_summary_counts_and_policy_source_spans(world):
+    summary = world["viewer"].get("/cases/summary").json()
+    assert sum(summary["by_status"].values()) >= 1 and summary["overdue"] >= 0
+    version = world["viewer"].get("/policies").json()[0]
+    detail = world["viewer"].get(f"/policies/versions/{version['version_id']}").json()
+    text = detail["document"]["source_text"]
+    for start, end in detail["source_spans"].values():
+        assert 0 <= start < end <= len(text)
