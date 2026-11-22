@@ -49,6 +49,36 @@ def recommend(
     return Decision("meets_criteria", ["Every required criterion is documented."])
 
 
+def with_overrides(
+    policy: Policy,
+    findings: list[dict],
+    overrides: dict[str, str],
+    run_flags: set[str],
+    has_documents: bool,
+    min_confidence: float,
+) -> Decision:
+    """The recommendation once a reviewer has corrected some checklist items.
+
+    `findings` are the stored rows ({criterion_id, finding, confidence}); `overrides` maps a
+    criterion id to the reviewer's finding. An item a person has set is no longer uncertain, so
+    low confidence and conflicts are recounted from the items nobody has set. Every other flag
+    (suspected injection, uncovered diagnosis) stays: those are about the case, not one item.
+    """
+    value = {"documented": True, "contradicted": False}
+    flags = set(run_flags) - {"low_confidence", "conflicting_evidence"}
+    status: dict[str, bool | None] = {}
+    for f in findings:
+        if f["criterion_id"] in overrides:
+            status[f["criterion_id"]] = value.get(overrides[f["criterion_id"]])
+            continue
+        status[f["criterion_id"]] = value.get(f["finding"])
+        if f["confidence"] < min_confidence:
+            flags.add("low_confidence")
+        if f["finding"] == "conflicting":
+            flags.add("conflicting_evidence")
+    return recommend(policy, status, flags, has_documents)
+
+
 def diagnosis_covered(policy: Policy, codes: list[str]) -> bool:
     """True when the policy lists no covered diagnoses, or one of the codes is on its list.
     ICD-10 codes are written with and without the dot (M54.16, M5416); both match."""

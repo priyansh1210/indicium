@@ -4,8 +4,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from psycopg import errors
 from psycopg_pool import PoolTimeout
 
+from indicium.api import auth, cases, policies
+from indicium.config import settings
 from indicium.db import make_pool
 
 
@@ -20,7 +23,50 @@ async def lifespan(app: FastAPI):
         pool.close()
 
 
+class BodyLimit:
+    """Refuse request bodies over the limit, counted as they arrive (Content-Length can lie)."""
+
+    def __init__(self, app, max_bytes: int):
+        self.app, self.max_bytes = app, max_bytes
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        length = dict(scope["headers"]).get(b"content-length", b"")
+        if length.isdigit() and int(length) > self.max_bytes:
+            return await _too_large(send)
+        received = 0
+
+        async def counted():
+            nonlocal received
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > self.max_bytes:
+                    raise _TooLarge
+            return message
+
+        try:
+            await self.app(scope, counted, send)
+        except _TooLarge:
+            await _too_large(send)
+
+
+class _TooLarge(Exception):
+    pass
+
+
+async def _too_large(send) -> None:
+    await JSONResponse({"detail": "Request body is too large"}, status_code=413)(
+        {"type": "http"}, None, send
+    )
+
+
 app = FastAPI(title="Indicium", lifespan=lifespan)
+app.add_middleware(BodyLimit, max_bytes=settings().max_body_bytes)
+app.include_router(auth.router)
+app.include_router(cases.router)
+app.include_router(policies.router)
 
 
 @app.exception_handler(PoolTimeout)
@@ -29,6 +75,14 @@ async def busy(_request: Request, _exc: PoolTimeout) -> JSONResponse:
     return JSONResponse(
         {"detail": "Busy, try again"}, status_code=503, headers={"Retry-After": "2"}
     )
+
+
+@app.exception_handler(errors.RaiseException)
+@app.exception_handler(errors.CheckViolation)
+async def refused_by_database(_request: Request, exc: Exception) -> JSONResponse:
+    # The database enforces case transitions and append-only history. If application code ever
+    # misses a check, the database still refuses, and the client sees a conflict, not a crash.
+    return JSONResponse({"detail": str(exc).splitlines()[0]}, status_code=409)
 
 
 @app.get("/health", tags=["ops"])

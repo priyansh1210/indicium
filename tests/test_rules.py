@@ -52,3 +52,27 @@ def test_no_outcome_is_ever_a_denial():
 )
 def test_diagnosis_codes_match_with_or_without_the_dot(codes, covered):
     assert diagnosis_covered(POLICY, codes) is covered
+
+
+def test_a_person_setting_an_uncertain_item_resolves_it_but_not_case_level_flags():
+    from indicium.review.rules import with_overrides
+
+    findings = [
+        {"criterion_id": "red_flag", "finding": "documented", "confidence": 0.9},
+        {"criterion_id": "results_guide_treatment", "finding": "absent", "confidence": 0.3},
+    ]
+    before = with_overrides(POLICY, findings, {}, {"low_confidence"}, True, 0.6)
+    assert before.recommendation == "refer_to_clinician"
+    after = with_overrides(
+        POLICY, findings, {"results_guide_treatment": "documented"}, {"low_confidence"}, True, 0.6
+    )
+    assert after.recommendation == "meets_criteria"
+    injected = with_overrides(
+        POLICY,
+        findings,
+        {"results_guide_treatment": "documented"},
+        {"possible_injection"},
+        True,
+        0.6,
+    )
+    assert injected.recommendation == "refer_to_clinician"

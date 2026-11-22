@@ -34,7 +34,10 @@ def _connection(request: Request) -> Iterator[Connection]:
         yield conn
 
 
-Db = Annotated[Connection, Depends(_connection)]
+# scope="function": the transaction commits when the handler returns, before the response is sent.
+# With the default scope FastAPI commits after sending, so a client could be told "created" for
+# a write that is not yet durable, and read its own write back too early.
+Db = Annotated[Connection, Depends(_connection, scope="function")]
 
 
 def audit(

@@ -4,15 +4,16 @@ import hashlib
 from datetime import timedelta
 
 from psycopg import Connection
+from psycopg.errors import UniqueViolation
 from psycopg.types.json import Jsonb
 
-from indicium.cases.model import CaseRequest
+from indicium.cases.model import CaseRequest, ClinicalDocument
 from indicium.config import settings
 from indicium.db import audit
 
 
 class DuplicateRequest(Exception):
-    """The external id is already used by a request with different content."""
+    """The external id (or a document id) is already used for different content."""
 
 
 def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int, bool]:
@@ -53,6 +54,37 @@ def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int
             actor,
         ),
     ).fetchone()["case_id"]
+    _insert_documents(conn, case_id, request.documents)
+    audit(
+        conn,
+        actor,
+        "case.received",
+        "case",
+        case_id,
+        {"external_id": request.external_id, "documents": len(request.documents)},
+    )
+    return case_id, True
+
+
+def add_documents(
+    conn: Connection, case_id: int, documents: list[ClinicalDocument], actor: str
+) -> None:
+    """Attach more documents to a case (the answer to a request for information)."""
+    try:
+        _insert_documents(conn, case_id, documents)
+    except UniqueViolation as error:
+        raise DuplicateRequest("a document with that id is already on this case") from error
+    audit(
+        conn,
+        actor,
+        "case.documents_added",
+        "case",
+        case_id,
+        {"doc_ids": [d.doc_id for d in documents]},
+    )
+
+
+def _insert_documents(conn: Connection, case_id: int, documents: list[ClinicalDocument]) -> None:
     with conn.cursor() as cur:
         cur.executemany(
             "insert into app.documents (case_id, doc_id, kind, author, written_on, text, sha256)"
@@ -67,18 +99,9 @@ def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int
                     d.text,
                     hashlib.sha256(d.text.encode()).hexdigest(),
                 )
-                for d in request.documents
+                for d in documents
             ],
         )
-    audit(
-        conn,
-        actor,
-        "case.received",
-        "case",
-        case_id,
-        {"external_id": request.external_id, "documents": len(request.documents)},
-    )
-    return case_id, True
 
 
 def load_request(conn: Connection, case_id: int) -> CaseRequest:

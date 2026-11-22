@@ -114,8 +114,12 @@ One interface, three implementations, chosen per run:
 
 ## Roles
 
-`viewer` (read only), `nurse` (review, edit checklist, approve, pend, refer), `physician`
-(everything a nurse can, plus deny), `admin` (users, policies). Every route declares its role.
+Permissions, not a ladder: `viewer` reads; `nurse` submits, corrects checklist items (with a
+reason, append-only) and approves, pends or refers; `physician` can also decide referred cases,
+which is the only path to a denial (also enforced by a database constraint); `admin` manages
+policies and users and makes no clinical decisions. Machine clients (an EHR or a provider portal)
+use API keys that can only submit. Every route declares its permission, and a test fails if a
+new route is reachable without signing in.
 
 ## Phases
 

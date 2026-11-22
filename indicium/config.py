@@ -37,6 +37,14 @@ class Settings(BaseSettings):
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     embedding_cache: str = ".cache/fastembed"
 
+    # API
+    session_hours: int = Field(12, ge=1, le=24 * 30)
+    cookie_secure: bool = False  # set true when served over HTTPS
+    max_body_bytes: int = Field(5_000_000, ge=10_000)
+    # Seeds sign-ins for the demo (one per role) and shows them on the sign-in page. Never in
+    # production.
+    demo_users: bool = False
+
     # Worker
     worker_poll_seconds: float = Field(1.0, gt=0)
     worker_lease_seconds: int = Field(900, ge=30)

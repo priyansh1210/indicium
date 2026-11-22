@@ -35,7 +35,10 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-    command: python -m indicium.cases load data/cases
+    environment:
+      INDICIUM_DATABASE_URL: postgresql://indicium:indicium@postgres:5432/indicium
+      INDICIUM_DEMO_USERS: "true"
+    command: sh -c "python -m indicium.api.users seed-demo && python -m indicium.cases load data/cases"
 
   # Reviews queued cases. Scale with: docker compose up --scale worker=3
   worker:
@@ -57,6 +60,9 @@ services:
 
   api:
     <<: *py
+    environment:
+      INDICIUM_DATABASE_URL: postgresql://indicium:indicium@postgres:5432/indicium
+      INDICIUM_DEMO_USERS: "true" # shows the demo sign-ins on the sign-in page; demo only
     depends_on:
       migrate:
         condition: service_completed_successfully
