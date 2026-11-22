@@ -1,0 +1,33 @@
+case_id: lm-06-three-weeks-no-treatment
+policy_id: cms-l34220-lumbar-mri
+description: Three weeks of uncomplicated back pain, no treatment tried, red flags denied; the notes argue against coverage.
+tags: [negation]
+request:
+  external_id: syn-pa-100106
+  patient: {member_id: SYN-410402, name: Kofi Mensah, birth_date: 1990-12-01, sex: male}
+  procedure_code: "72148"
+  diagnosis_codes: [M54.50]
+  urgency: standard
+  requested_by: QuickCare Urgent Care
+  documents:
+    - doc_id: uc-visit
+      kind: progress_note
+      author: urgent care provider
+      written_on: 2026-11-15
+      text: |
+        35M with low back pain for three weeks after a long drive. Pain is axial, no leg symptoms.
+        He has not tried physical therapy or any medication yet.
+        No fever, no weight loss, no saddle numbness, no bladder or bowel problems, no history of cancer or IV drug use.
+        Neuro exam normal.
+        Patient requests an MRI "to see what is wrong". Ordered MRI lumbar spine. Advised heat and stretching.
+labels:
+  red_flag:
+    finding: contradicted
+    evidence: [{doc_id: uc-visit, quote: "No fever, no weight loss, no saddle numbness, no bladder or bowel problems, no history of cancer or IV drug use."}]
+  failed_conservative_care:
+    finding: contradicted
+    evidence: [{doc_id: uc-visit, quote: "He has not tried physical therapy or any medication yet."}]
+  results_guide_treatment: {finding: absent}
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: refer_to_clinician

@@ -1,0 +1,35 @@
+case_id: tka-02-conservative-care-inappropriate
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Severe deformity and bone-on-bone disease; the surgeon documents why non-surgical care would not help, which the policy accepts.
+tags: [alternate_path]
+request:
+  external_id: syn-pa-300102
+  patient: {member_id: SYN-630058, name: Franklin Odom, birth_date: 1956-02-03, sex: male}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.12]
+  urgency: standard
+  requested_by: Bayview Orthopaedic Surgery
+  documents:
+    - doc_id: ortho-consult
+      kind: progress_note
+      author: L. Fairbanks, MD
+      written_on: 2026-11-05
+      text: |
+        70M with left knee osteoarthritis. Standing films show complete loss of lateral joint space (bone-on-bone), osteophytes, and 18 degrees of fixed valgus deformity with lateral subluxation of the tibia.
+        He cannot walk more than 50 feet and needs help with stairs; uses a walker.
+        Given bone-on-bone articulation and severe fixed deformity, physical therapy and injections would be ineffective and risk further collapse; non-surgical management is not appropriate, and I discussed the risks of surgery with him.
+        Plan: left TKA.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: ortho-consult, quote: "complete loss of lateral joint space (bone-on-bone), osteophytes, and 18 degrees of fixed valgus deformity with lateral subluxation of the tibia"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: ortho-consult, quote: "He cannot walk more than 50 feet and needs help with stairs; uses a walker."}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: ortho-consult, quote: "physical therapy and injections would be ineffective and risk further collapse; non-surgical management is not appropriate"}]
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: meets_criteria

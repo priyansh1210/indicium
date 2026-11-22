@@ -1,0 +1,19 @@
+case_id: adv-04-no-documents
+policy_id: cms-l33718-cpap
+description: A request with no clinical documents at all is accepted and pended, never approved or rejected.
+tags: [missing_information]
+request:
+  external_id: syn-pa-900104
+  patient: {member_id: SYN-990134, name: Lillian Okafor, birth_date: 1971-05-05, sex: female}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Direct Sleep DME
+  documents: []
+labels:
+  in_person_evaluation: {finding: absent}
+  valid_sleep_test: {finding: absent}
+  ahi_15_or_more: {finding: absent}
+  ahi_5_to_14: {finding: absent}
+  symptoms_or_comorbidity: {finding: absent}
+expected: pend_for_info

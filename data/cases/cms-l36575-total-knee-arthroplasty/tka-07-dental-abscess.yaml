@@ -1,0 +1,42 @@
+case_id: tka-07-dental-abscess
+policy_id: cms-l36575-total-knee-arthroplasty
+description: An untreated dental abscess found at pre-op clearance; the infection exclusion is far from the knee.
+tags: [exclusion, multi_document]
+request:
+  external_id: syn-pa-300107
+  patient: {member_id: SYN-630279, name: Beatrice Marchetti, birth_date: 1951-03-08, sex: female}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.12]
+  urgency: standard
+  requested_by: Bayview Orthopaedic Surgery
+  documents:
+    - doc_id: surgeon
+      kind: progress_note
+      author: L. Fairbanks, MD
+      written_on: 2026-11-03
+      text: |
+        Left knee: severe tricompartmental osteoarthritis on standing radiographs with joint space narrowing, subchondral sclerosis and osteophytes.
+        Unable to walk without a cane; stairs impossible. PT for 12 weeks, NSAIDs and injections failed.
+        Plan: left TKA pending medical clearance.
+    - doc_id: clearance
+      kind: progress_note
+      author: primary care
+      written_on: 2026-11-14
+      text: |
+        Pre-operative clearance: periapical abscess of tooth #19 with facial swelling, referred to dentistry today; not cleared for elective surgery until treated.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: surgeon, quote: "severe tricompartmental osteoarthritis on standing radiographs with joint space narrowing, subchondral sclerosis and osteophytes"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: surgeon, quote: "Unable to walk without a cane; stairs impossible."}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: surgeon, quote: "PT for 12 weeks, NSAIDs and injections failed."}]
+  other_indication: {finding: absent}
+  active_infection:
+    finding: documented
+    evidence: [{doc_id: clearance, quote: "periapical abscess of tooth #19 with facial swelling"}]
+  progressive_neurological_disease: {finding: absent}
+expected: refer_to_clinician

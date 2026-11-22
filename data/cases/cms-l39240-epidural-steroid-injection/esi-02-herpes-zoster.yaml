@@ -1,0 +1,44 @@
+case_id: esi-02-herpes-zoster
+policy_id: cms-l39240-epidural-steroid-injection
+description: Acute thoracic herpes zoster pain refractory to antivirals and gabapentin; the four-week wait does not apply.
+tags: [alternate_path]
+request:
+  external_id: syn-pa-200102
+  patient: {member_id: SYN-520077, name: Bernard Okonkwo, birth_date: 1949-10-08, sex: male}
+  procedure_code: "64479"
+  diagnosis_codes: [B02.8]
+  urgency: expedited
+  requested_by: Cedar Pain Institute
+  documents:
+    - doc_id: zoster-consult
+      kind: progress_note
+      author: M. Delacroix, MD (pain medicine)
+      written_on: 2026-11-16
+      text: |
+        77M with acute herpes zoster in the right T6 dermatome, rash onset 12 days ago. Completed 7 days of valacyclovir; on gabapentin 300 mg TID and lidocaine patches. Pain remains refractory to these conservative measures and keeps him from sleeping.
+        Pain NRS 9/10 at baseline today; unable to dress or bathe without help.
+        Plan: right T6-7 transforaminal epidural steroid injection with fluoroscopic guidance and contrast.
+        He walks 20 minutes daily with his wife and will keep doing the home stretching program we gave him.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: zoster-consult, quote: "acute herpes zoster in the right T6 dermatome"}]
+  severity_baseline_scale:
+    finding: documented
+    evidence:
+      - {doc_id: zoster-consult, quote: "Pain NRS 9/10 at baseline today; unable to dress or bathe without help."}
+  failed_conservative_care: {finding: absent}
+  refractory_herpes_zoster:
+    finding: documented
+    evidence: [{doc_id: zoster-consult, quote: "Pain remains refractory to these conservative measures and keeps him from sleeping."}]
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: zoster-consult, quote: "transforaminal epidural steroid injection with fluoroscopic guidance and contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: zoster-consult, quote: "will keep doing the home stretching program we gave him"}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: meets_criteria

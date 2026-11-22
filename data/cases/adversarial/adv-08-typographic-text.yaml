@@ -1,0 +1,36 @@
+case_id: adv-08-typographic-text
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Note pasted from a word processor (curly quotes, en and em dashes, non-breaking spaces); labels use plain ASCII and must still match.
+tags: [formatting]
+request:
+  external_id: syn-pa-900108
+  patient: {member_id: SYN-990281, name: Frances O’Malley, birth_date: 1953-09-27, sex: female}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.12]
+  urgency: standard
+  requested_by: Bayview Orthopaedic Surgery
+  documents:
+    - doc_id: letter
+      kind: referral
+      author: L. Fairbanks, MD
+      written_on: 2026-11-21
+      text: |
+        RE: Mrs. O’Malley — left knee
+        Standing radiographs: “bone‑on‑bone” medial compartment, subchondral cysts and osteophytes – advanced disease.
+        She can’t manage stairs and walks ≤ 1 block with a cane.
+        Treatment to date: 16 weeks of supervised PT, naproxen, and 3 cortisone injections – none gave lasting relief.
+        Plan: left total knee arthroplasty.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: letter, quote: "\"bone-on-bone\" medial compartment, subchondral cysts and osteophytes - advanced disease"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: letter, quote: "She can't manage stairs"}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: letter, quote: "16 weeks of supervised PT, naproxen, and 3 cortisone injections - none gave lasting relief"}]
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: meets_criteria

@@ -1,0 +1,41 @@
+case_id: cpap-10-unspecified-apnea-code
+policy_id: cms-l33718-cpap
+description: Severe OSA on a valid study, but billed as unspecified sleep apnea instead of obstructive sleep apnea.
+tags: [coding]
+request:
+  external_id: syn-pa-400110
+  patient: {member_id: SYN-740389, name: Patricia Lungu, birth_date: 1964-03-03, sex: female}
+  procedure_code: E0601
+  diagnosis_codes: [G47.30]
+  urgency: standard
+  requested_by: Direct Sleep DME
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: F. Ruiz, MD
+      written_on: 2026-09-02
+      text: |
+        In-person evaluation for snoring, gasping awakenings and Epworth 16. Ordered home sleep test.
+    - doc_id: hsat
+      kind: sleep_study
+      author: Direct Sleep Testing
+      written_on: 2026-09-14
+      text: |
+        Type III HSAT ordered by Dr. F. Ruiz. 6.9 hours recorded, 248 events, RDI 36 events/hour. Obstructive pattern.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "In-person evaluation for snoring, gasping awakenings and Epworth 16."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "Type III HSAT ordered by Dr. F. Ruiz."}]
+  ahi_15_or_more:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "248 events, RDI 36 events/hour"}]
+  ahi_5_to_14:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "RDI 36 events/hour"}]
+  symptoms_or_comorbidity:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "Epworth 16"}]
+expected: refer_to_clinician

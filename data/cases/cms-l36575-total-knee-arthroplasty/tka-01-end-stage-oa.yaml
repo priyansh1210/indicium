@@ -1,0 +1,49 @@
+case_id: tka-01-end-stage-oa
+policy_id: cms-l36575-total-knee-arthroplasty
+description: End-stage medial compartment osteoarthritis with a long, failed conservative course across three documents.
+tags: [multi_document]
+request:
+  external_id: syn-pa-300101
+  patient: {member_id: SYN-630011, name: Margaret Holloway, birth_date: 1952-06-12, sex: female}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.11]
+  urgency: standard
+  requested_by: Bayview Orthopaedic Surgery
+  documents:
+    - doc_id: xray-knee
+      kind: imaging_report
+      author: Radiology
+      written_on: 2026-09-29
+      text: |
+        XR RIGHT KNEE, 3 VIEWS WEIGHT-BEARING
+        Severe medial joint space narrowing with bone-on-bone contact, large marginal osteophytes, subchondral sclerosis and subchondral cysts of the medial tibial plateau. Mild varus alignment.
+    - doc_id: pt-discharge
+      kind: therapy_note
+      author: Bayview Physical Therapy
+      written_on: 2026-08-20
+      text: |
+        Discharge summary: 14 visits over 12 weeks of supervised strengthening and gait training. Goals not met; patient still unable to climb stairs reciprocally and walking tolerance remains under 10 minutes.
+    - doc_id: surgeon-note
+      kind: progress_note
+      author: L. Fairbanks, MD
+      written_on: 2026-10-14
+      text: |
+        74F, right knee pain for 3 years, now limiting walking to one block and making it hard to rise from a chair. Night pain.
+        Has used naproxen and acetaminophen for years, two corticosteroid injections this year (relief under 3 weeks each), cane for 6 months, and completed formal PT without lasting benefit.
+        Recommend right total knee arthroplasty.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: xray-knee, quote: "Severe medial joint space narrowing with bone-on-bone contact, large marginal osteophytes, subchondral sclerosis and subchondral cysts"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: surgeon-note, quote: "now limiting walking to one block and making it hard to rise from a chair"}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence:
+      - {doc_id: surgeon-note, quote: "two corticosteroid injections this year (relief under 3 weeks each), cane for 6 months, and completed formal PT without lasting benefit"}
+      - {doc_id: pt-discharge, quote: "14 visits over 12 weeks of supervised strengthening and gait training. Goals not met"}
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: meets_criteria

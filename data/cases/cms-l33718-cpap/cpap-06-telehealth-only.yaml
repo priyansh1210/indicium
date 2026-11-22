@@ -1,0 +1,41 @@
+case_id: cpap-06-telehealth-only
+policy_id: cms-l33718-cpap
+description: The pre-test evaluation was a video visit only, which does not count as in person.
+tags: [policy_detail]
+request:
+  external_id: syn-pa-400106
+  patient: {member_id: SYN-740221, name: Wanda Kozlowski, birth_date: 1957-04-04, sex: female}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Direct Sleep DME
+  documents:
+    - doc_id: video-visit
+      kind: progress_note
+      author: F. Ruiz, MD
+      written_on: 2026-09-18
+      text: |
+        Telehealth video visit only; patient has not been seen in person. Reports snoring and daytime sleepiness. Ordered home sleep apnea test.
+    - doc_id: hsat
+      kind: sleep_study
+      author: Direct Sleep Testing
+      written_on: 2026-09-27
+      text: |
+        Type III HSAT ordered by Dr. F. Ruiz. 7.1 hours recorded, 192 events, AHI 27 events/hour.
+labels:
+  in_person_evaluation:
+    finding: contradicted
+    evidence: [{doc_id: video-visit, quote: "Telehealth video visit only; patient has not been seen in person."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "Type III HSAT ordered by Dr. F. Ruiz."}]
+  ahi_15_or_more:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "192 events, AHI 27 events/hour"}]
+  ahi_5_to_14:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "AHI 27 events/hour"}]
+  symptoms_or_comorbidity:
+    finding: documented
+    evidence: [{doc_id: video-visit, quote: "Reports snoring and daytime sleepiness."}]
+expected: refer_to_clinician

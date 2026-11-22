@@ -29,6 +29,14 @@ services:
     # Loading is idempotent: an unchanged policy file is not stored again.
     command: sh -c "alembic upgrade head && python -m indicium.policies load data/policies --publish"
 
+  # Demo only: loads the synthetic labelled cases so there is work to review. Not for production.
+  demo-data:
+    <<: *py
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: python -m indicium.cases load data/cases
+
   api:
     <<: *py
     depends_on:

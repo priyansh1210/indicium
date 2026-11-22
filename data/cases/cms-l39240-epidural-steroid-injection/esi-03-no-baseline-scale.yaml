@@ -1,0 +1,41 @@
+case_id: esi-03-no-baseline-scale
+policy_id: cms-l39240-epidural-steroid-injection
+description: Everything is documented except an objective baseline score; "severe pain" alone is not a scale.
+tags: [missing_information]
+request:
+  external_id: syn-pa-200103
+  patient: {member_id: SYN-520101, name: Teresa Valdivia, birth_date: 1970-03-27, sex: female}
+  procedure_code: "62323"
+  diagnosis_codes: [M51.16]
+  urgency: standard
+  requested_by: Valley Spine Center
+  documents:
+    - doc_id: spine-note
+      kind: progress_note
+      author: R. Gupta, MD
+      written_on: 2026-11-08
+      text: |
+        Right L5-S1 disc herniation on MRI (10/12/2026) compressing the right S1 root, matching her right posterior leg pain and diminished right ankle reflex.
+        Severe pain that limits her work as a cashier. Symptoms for 10 weeks.
+        Six weeks of PT and naproxen, no improvement.
+        Plan: L5-S1 interlaminar epidural steroid injection, fluoroscopy with contrast. Continue PT home program.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: spine-note, quote: "Right L5-S1 disc herniation on MRI (10/12/2026) compressing the right S1 root, matching her right posterior leg pain and diminished right ankle reflex."}]
+  severity_baseline_scale: {finding: absent}
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: spine-note, quote: "Six weeks of PT and naproxen, no improvement."}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: spine-note, quote: "interlaminar epidural steroid injection, fluoroscopy with contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: spine-note, quote: "Continue PT home program."}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: pend_for_info

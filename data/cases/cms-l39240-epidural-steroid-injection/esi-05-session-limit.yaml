@@ -1,0 +1,45 @@
+case_id: esi-05-session-limit
+policy_id: cms-l39240-epidural-steroid-injection
+description: A fifth lumbar session within twelve months; the frequency limit applies even though each injection helped.
+tags: [exclusion]
+request:
+  external_id: syn-pa-200105
+  patient: {member_id: SYN-520203, name: Irene Castellano, birth_date: 1958-08-30, sex: female}
+  procedure_code: "64483"
+  diagnosis_codes: [M48.062]
+  urgency: standard
+  requested_by: Cedar Pain Institute
+  documents:
+    - doc_id: followup
+      kind: progress_note
+      author: M. Delacroix, MD (pain medicine)
+      written_on: 2026-11-12
+      text: |
+        Lumbar spinal stenosis at L4-5 with neurogenic claudication, confirmed on MRI and matching her symptoms.
+        Prior lumbar TFESIs on 01/15/2026, 04/20/2026, 07/22/2026 and 10/01/2026, each giving about 60% relief for roughly 10 weeks.
+        Walking tolerance has dropped again; NRS 7/10, ODI 48%. Remains in a supervised aquatic therapy program twice weekly.
+        Plan: repeat left L4-5 TFESI under fluoroscopy with contrast.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: followup, quote: "Lumbar spinal stenosis at L4-5 with neurogenic claudication, confirmed on MRI and matching her symptoms."}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: followup, quote: "NRS 7/10, ODI 48%"}]
+  failed_conservative_care: {finding: absent}
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: followup, quote: "repeat left L4-5 TFESI under fluoroscopy with contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: followup, quote: "Remains in a supervised aquatic therapy program twice weekly."}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached:
+    finding: documented
+    evidence: [{doc_id: followup, quote: "Prior lumbar TFESIs on 01/15/2026, 04/20/2026, 07/22/2026 and 10/01/2026"}]
+  repeat_without_response:
+    finding: contradicted
+    evidence: [{doc_id: followup, quote: "each giving about 60% relief for roughly 10 weeks"}]
+expected: refer_to_clinician

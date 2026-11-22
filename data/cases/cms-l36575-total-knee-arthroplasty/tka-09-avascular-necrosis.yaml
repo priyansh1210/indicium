@@ -1,0 +1,41 @@
+case_id: tka-09-avascular-necrosis
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Avascular necrosis of the medial femoral condyle with collapse on MRI.
+tags: [alternate_path]
+request:
+  external_id: syn-pa-300109
+  patient: {member_id: SYN-630347, name: Imani Sterling, birth_date: 1963-05-29, sex: female}
+  procedure_code: "27447"
+  diagnosis_codes: [M87.061]
+  urgency: standard
+  requested_by: Bayview Orthopaedic Surgery
+  documents:
+    - doc_id: mri
+      kind: imaging_report
+      author: Radiology
+      written_on: 2026-10-25
+      text: |
+        MRI RIGHT KNEE: Large area of osteonecrosis of the medial femoral condyle with subchondral collapse and secondary joint space narrowing.
+    - doc_id: clinic
+      kind: progress_note
+      author: L. Fairbanks, MD
+      written_on: 2026-11-08
+      text: |
+        Steroid-associated avascular necrosis of the right knee confirmed on MRI. Severe pain with weight bearing; using crutches. Protected weight bearing for 8 weeks failed.
+        Plan: right TKA.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: mri, quote: "Large area of osteonecrosis of the medial femoral condyle with subchondral collapse and secondary joint space narrowing."}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: clinic, quote: "Severe pain with weight bearing; using crutches."}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: clinic, quote: "Protected weight bearing for 8 weeks failed."}]
+  other_indication:
+    finding: documented
+    evidence: [{doc_id: clinic, quote: "Steroid-associated avascular necrosis of the right knee confirmed on MRI."}]
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: meets_criteria

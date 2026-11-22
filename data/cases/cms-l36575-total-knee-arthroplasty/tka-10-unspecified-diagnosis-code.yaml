@@ -1,0 +1,34 @@
+case_id: tka-10-unspecified-diagnosis-code
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Clinically complete request coded as unspecified knee osteoarthritis, which the billing article does not list.
+tags: [coding]
+request:
+  external_id: syn-pa-300110
+  patient: {member_id: SYN-630392, name: Leonard Fitzgerald, birth_date: 1949-08-21, sex: male}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.9]
+  urgency: standard
+  requested_by: Hillside Joint Center
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: P. Nwachukwu, MD
+      written_on: 2026-11-12
+      text: |
+        77M, left knee. X-rays: bone-on-bone lateral compartment with osteophytes and subchondral sclerosis.
+        Cannot walk a block; difficulty dressing. Failed PT, NSAIDs, bracing and injections over the past year.
+        Plan: left total knee arthroplasty.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "bone-on-bone lateral compartment with osteophytes and subchondral sclerosis"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "Cannot walk a block; difficulty dressing."}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "Failed PT, NSAIDs, bracing and injections over the past year."}]
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: refer_to_clinician

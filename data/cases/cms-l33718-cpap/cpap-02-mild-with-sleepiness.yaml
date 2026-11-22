@@ -1,0 +1,45 @@
+case_id: cpap-02-mild-with-sleepiness
+policy_id: cms-l33718-cpap
+description: Home sleep test AHI 9 with 58 events, plus daytime sleepiness and hypertension.
+tags: [numeric]
+request:
+  external_id: syn-pa-400102
+  patient: {member_id: SYN-740064, name: Naomi Fairchild, birth_date: 1974-01-28, sex: female}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeside Family Medicine
+  documents:
+    - doc_id: office-visit
+      kind: progress_note
+      author: R. Okafor, MD
+      written_on: 2026-09-22
+      text: |
+        Seen in the office for fatigue. Epworth Sleepiness Scale 15; falls asleep at red lights. Long-standing hypertension on two agents.
+        Evaluated today for possible obstructive sleep apnea; ordering a home sleep apnea test.
+    - doc_id: hsat
+      kind: sleep_study
+      author: Home Sleep Services
+      written_on: 2026-10-06
+      text: |
+        Type III home sleep apnea test ordered by Dr. R. Okafor. Recording time 6.4 hours. 58 respiratory events. RDI 9.1 events/hour. Oxygen nadir 86%.
+        Impression: mild obstructive sleep apnea.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: office-visit, quote: "Evaluated today for possible obstructive sleep apnea; ordering a home sleep apnea test."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "Type III home sleep apnea test ordered by Dr. R. Okafor."}]
+  ahi_15_or_more:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "RDI 9.1 events/hour"}]
+  ahi_5_to_14:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "58 respiratory events. RDI 9.1 events/hour."}]
+  symptoms_or_comorbidity:
+    finding: documented
+    evidence:
+      - {doc_id: office-visit, quote: "Epworth Sleepiness Scale 15; falls asleep at red lights."}
+      - {doc_id: office-visit, quote: "Long-standing hypertension on two agents."}
+expected: meets_criteria

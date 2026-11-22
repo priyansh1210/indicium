@@ -1,0 +1,44 @@
+case_id: esi-08-suspected-discitis
+policy_id: cms-l39240-epidural-steroid-injection
+description: Fever and raised inflammatory markers suggest spinal infection, a contraindication to injection.
+tags: [exclusion]
+request:
+  external_id: syn-pa-200108
+  patient: {member_id: SYN-520333, name: Victor Ilunga, birth_date: 1961-04-05, sex: male}
+  procedure_code: "64483"
+  diagnosis_codes: [M54.16]
+  urgency: standard
+  requested_by: Lakeside Family Medicine
+  documents:
+    - doc_id: pcp-referral
+      kind: referral
+      author: R. Okafor, MD
+      written_on: 2026-11-15
+      text: |
+        Left L4 radicular pain for 6 weeks, MRI shows L3-4 foraminal narrowing that fits his symptoms. NRS 7/10. Failed 5 weeks of PT and NSAIDs; continuing home exercise.
+        Of note: temperature 38.4 C at today's visit, ESR 88 and CRP 61, and new focal L3-4 tenderness; suspected early discitis.
+        Requesting left L3-4 TFESI under fluoroscopy with contrast.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: pcp-referral, quote: "MRI shows L3-4 foraminal narrowing that fits his symptoms"}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: pcp-referral, quote: "NRS 7/10."}]
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: pcp-referral, quote: "Failed 5 weeks of PT and NSAIDs"}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: pcp-referral, quote: "TFESI under fluoroscopy with contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: pcp-referral, quote: "continuing home exercise"}]
+  nonspecific_pain: {finding: absent}
+  contraindication:
+    finding: documented
+    evidence: [{doc_id: pcp-referral, quote: "temperature 38.4 C at today's visit, ESR 88 and CRP 61, and new focal L3-4 tenderness; suspected early discitis"}]
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: refer_to_clinician

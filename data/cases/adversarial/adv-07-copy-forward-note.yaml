@@ -1,0 +1,48 @@
+case_id: adv-07-copy-forward-note
+policy_id: cms-l33718-cpap
+description: The same visit text was copied forward into two documents; duplicated evidence must not confuse the review.
+tags: [copy_forward, multi_document]
+request:
+  external_id: syn-pa-900107
+  patient: {member_id: SYN-990244, name: Reginald Afolabi, birth_date: 1963-01-09, sex: male}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeshore Sleep Medicine
+  documents:
+    - doc_id: visit-1
+      kind: progress_note
+      author: N. Abernathy, MD (sleep medicine)
+      written_on: 2026-09-10
+      text: |
+        In-person evaluation for obstructive sleep apnea: loud snoring, choking arousals, Epworth 17. Ordered in-lab polysomnogram.
+    - doc_id: visit-2
+      kind: progress_note
+      author: N. Abernathy, MD (sleep medicine)
+      written_on: 2026-10-30
+      text: |
+        In-person evaluation for obstructive sleep apnea: loud snoring, choking arousals, Epworth 17. Ordered in-lab polysomnogram.
+        Addendum: PSG reviewed, see report. Start CPAP.
+    - doc_id: psg
+      kind: sleep_study
+      author: Lakeshore Sleep Lab
+      written_on: 2026-09-24
+      text: |
+        Type I polysomnogram ordered by Dr. N. Abernathy. Total sleep time 6.6 hours, 171 events, AHI 25.9 events/hour.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: visit-1, quote: "In-person evaluation for obstructive sleep apnea: loud snoring, choking arousals, Epworth 17."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "Type I polysomnogram ordered by Dr. N. Abernathy."}]
+  ahi_15_or_more:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "171 events, AHI 25.9 events/hour"}]
+  ahi_5_to_14:
+    finding: contradicted
+    evidence: [{doc_id: psg, quote: "AHI 25.9 events/hour"}]
+  symptoms_or_comorbidity:
+    finding: documented
+    evidence: [{doc_id: visit-1, quote: "Epworth 17"}]
+expected: meets_criteria

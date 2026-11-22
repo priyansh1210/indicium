@@ -1,0 +1,33 @@
+case_id: lm-04-osteoporotic-fall
+policy_id: cms-l34220-lumbar-mri
+description: Minor fall in a patient with osteoporosis; MRI decides on kyphoplasty.
+tags: [red_flag_path]
+request:
+  external_id: syn-pa-100104
+  patient: {member_id: SYN-410309, name: Eleanor Szabo, birth_date: 1945-01-30, sex: female}
+  procedure_code: "72148"
+  diagnosis_codes: [M80.08XA]
+  urgency: standard
+  requested_by: Riverbend Geriatrics
+  documents:
+    - doc_id: geri-note
+      kind: progress_note
+      author: T. Lindqvist, NP
+      written_on: 2026-11-12
+      text: |
+        81F with osteoporosis (DEXA T-score -3.1 at the hip, on alendronate) slipped and sat down hard on the bathroom floor 10 days ago. Since then, sharp mid-to-low back pain with standing, 7/10.
+        X-ray lumbar spine: possible new L1 compression deformity, age indeterminate.
+        Plan: MRI lumbar spine without contrast to determine whether the L1 fracture is acute; an acute fracture would make her a candidate for kyphoplasty, which IR has agreed to evaluate.
+labels:
+  red_flag:
+    finding: documented
+    evidence: [{doc_id: geri-note, quote: "81F with osteoporosis (DEXA T-score -3.1 at the hip, on alendronate) slipped and sat down hard on the bathroom floor 10 days ago."}]
+  failed_conservative_care: {finding: absent}
+  results_guide_treatment:
+    finding: documented
+    evidence: [{doc_id: geri-note, quote: "an acute fracture would make her a candidate for kyphoplasty"}]
+  duplicate_imaging:
+    finding: contradicted
+    evidence: [{doc_id: geri-note, quote: "possible new L1 compression deformity, age indeterminate"}]
+  investigational_use: {finding: absent}
+expected: meets_criteria

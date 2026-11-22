@@ -1,0 +1,30 @@
+case_id: cpap-07-study-pending
+policy_id: cms-l33718-cpap
+description: The device is requested before the sleep study has been done.
+tags: [missing_information]
+request:
+  external_id: syn-pa-400107
+  patient: {member_id: SYN-740266, name: Rashid Karimi, birth_date: 1970-02-14, sex: male}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeside Family Medicine
+  documents:
+    - doc_id: office
+      kind: progress_note
+      author: R. Okafor, MD
+      written_on: 2026-11-10
+      text: |
+        In-person visit. Snoring, witnessed apneas, Epworth 13. Suspect obstructive sleep apnea.
+        Home sleep test has been ordered and is scheduled for next month. Requesting CPAP now so it is ready.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: office, quote: "In-person visit. Snoring, witnessed apneas, Epworth 13. Suspect obstructive sleep apnea."}]
+  valid_sleep_test: {finding: absent}
+  ahi_15_or_more: {finding: absent}
+  ahi_5_to_14: {finding: absent}
+  symptoms_or_comorbidity:
+    finding: documented
+    evidence: [{doc_id: office, quote: "Epworth 13"}]
+expected: pend_for_info

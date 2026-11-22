@@ -1,0 +1,39 @@
+case_id: cpap-04-evaluation-after-test
+policy_id: cms-l33718-cpap
+description: The only in-person visit happened after the sleep test; the order of dates must be read correctly.
+tags: [dates]
+request:
+  external_id: syn-pa-400104
+  patient: {member_id: SYN-740143, name: Gloria Weatherby, birth_date: 1961-11-11, sex: female}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Direct Sleep DME
+  documents:
+    - doc_id: hsat
+      kind: sleep_study
+      author: Direct Sleep Testing
+      written_on: 2026-10-02
+      text: |
+        Type III home sleep test, ordered by Dr. F. Ruiz after an online questionnaire. 6.8 hours recorded, 136 events, AHI 20 events/hour.
+    - doc_id: first-visit
+      kind: progress_note
+      author: F. Ruiz, MD
+      written_on: 2026-10-20
+      text: |
+        First in-person visit with this patient, after her home sleep test of 10/02/2026. Reviewed results: moderate OSA. Discussed CPAP.
+labels:
+  in_person_evaluation:
+    finding: contradicted
+    evidence: [{doc_id: first-visit, quote: "First in-person visit with this patient, after her home sleep test of 10/02/2026."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "Type III home sleep test, ordered by Dr. F. Ruiz"}]
+  ahi_15_or_more:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "136 events, AHI 20 events/hour"}]
+  ahi_5_to_14:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "AHI 20 events/hour"}]
+  symptoms_or_comorbidity: {finding: absent}
+expected: refer_to_clinician

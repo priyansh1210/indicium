@@ -1,0 +1,39 @@
+case_id: tka-04-mild-changes
+policy_id: cms-l36575-total-knee-arthroplasty
+description: X-ray shows only mild degenerative change and conservative care is barely started; the notes argue against surgery.
+tags: []
+request:
+  external_id: syn-pa-300104
+  patient: {member_id: SYN-630140, name: Christopher Ng, birth_date: 1969-07-07, sex: male}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.11]
+  urgency: standard
+  requested_by: Hillside Joint Center
+  documents:
+    - doc_id: xr
+      kind: imaging_report
+      author: Radiology
+      written_on: 2026-10-21
+      text: |
+        XR RIGHT KNEE: Mild medial joint space narrowing. No subchondral cysts or sclerosis. Small osteophytes. Impression: mild degenerative change.
+    - doc_id: visit
+      kind: progress_note
+      author: clinic note
+      written_on: 2026-11-01
+      text: |
+        57M with right knee pain after playing tennis, worse after long walks. Started ibuprofen 3 weeks ago with partial relief. Has not done physical therapy.
+        Requests knee replacement to "get it over with".
+labels:
+  imaging_advanced_disease:
+    finding: contradicted
+    evidence: [{doc_id: xr, quote: "Impression: mild degenerative change."}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: visit, quote: "right knee pain after playing tennis, worse after long walks"}]
+  failed_nonsurgical_management:
+    finding: contradicted
+    evidence: [{doc_id: visit, quote: "Started ibuprofen 3 weeks ago with partial relief. Has not done physical therapy."}]
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: pend_for_info

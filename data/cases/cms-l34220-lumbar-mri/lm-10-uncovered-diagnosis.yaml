@@ -1,0 +1,30 @@
+case_id: lm-10-uncovered-diagnosis
+policy_id: cms-l34220-lumbar-mri
+description: Clinically supported request filed under a routine-exam diagnosis code the policy does not cover.
+tags: [coding]
+request:
+  external_id: syn-pa-100110
+  patient: {member_id: SYN-410601, name: Arthur Nakamura, birth_date: 1966-07-04, sex: male}
+  procedure_code: "72148"
+  diagnosis_codes: [Z00.00]
+  urgency: standard
+  requested_by: Summit Internal Medicine
+  documents:
+    - doc_id: im-note
+      kind: progress_note
+      author: K. Abiodun, MD
+      written_on: 2026-11-11
+      text: |
+        Annual visit; also reports right leg radiating pain for 9 weeks. Completed 6 weeks of physical therapy and a course of oral steroids without relief.
+        Plan MRI lumbar spine; findings will decide between surgical referral and an epidural injection.
+labels:
+  red_flag: {finding: absent}
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: im-note, quote: "Completed 6 weeks of physical therapy and a course of oral steroids without relief."}]
+  results_guide_treatment:
+    finding: documented
+    evidence: [{doc_id: im-note, quote: "findings will decide between surgical referral and an epidural injection"}]
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: refer_to_clinician

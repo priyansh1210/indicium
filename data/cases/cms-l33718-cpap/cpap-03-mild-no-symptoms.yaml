@@ -1,0 +1,44 @@
+case_id: cpap-03-mild-no-symptoms
+policy_id: cms-l33718-cpap
+description: AHI 8 and the notes explicitly deny sleepiness, hypertension and heart disease.
+tags: [numeric, negation]
+request:
+  external_id: syn-pa-400103
+  patient: {member_id: SYN-740101, name: Elliot Varga, birth_date: 1988-05-16, sex: male}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeshore Sleep Medicine
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: N. Abernathy, MD (sleep medicine)
+      written_on: 2026-09-30
+      text: |
+        In-person evaluation: partner reports loud snoring. Patient denies daytime sleepiness (Epworth 4), denies insomnia, mood or memory problems. Normotensive, no heart disease, no history of stroke.
+        Home sleep test ordered to evaluate for obstructive sleep apnea.
+    - doc_id: hsat
+      kind: sleep_study
+      author: Home Sleep Services
+      written_on: 2026-10-12
+      text: |
+        Type III HSAT ordered by Dr. N. Abernathy. Recording time 7.0 hours, 41 events, AHI 8 events/hour.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "In-person evaluation: partner reports loud snoring."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "Type III HSAT ordered by Dr. N. Abernathy."}]
+  ahi_15_or_more:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "AHI 8 events/hour"}]
+  ahi_5_to_14:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "41 events, AHI 8 events/hour"}]
+  symptoms_or_comorbidity:
+    finding: contradicted
+    evidence:
+      - {doc_id: consult, quote: "Patient denies daytime sleepiness (Epworth 4), denies insomnia, mood or memory problems."}
+      - {doc_id: consult, quote: "Normotensive, no heart disease, no history of stroke."}
+expected: refer_to_clinician

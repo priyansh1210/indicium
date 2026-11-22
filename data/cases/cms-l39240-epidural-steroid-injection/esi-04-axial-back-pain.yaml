@@ -1,0 +1,45 @@
+case_id: esi-04-axial-back-pain
+policy_id: cms-l39240-epidural-steroid-injection
+description: Axial low back pain without radicular features is a non-covered use, under an uncovered diagnosis code.
+tags: [exclusion, coding]
+request:
+  external_id: syn-pa-200104
+  patient: {member_id: SYN-520166, name: Douglas Freeman, birth_date: 1975-11-13, sex: male}
+  procedure_code: "62323"
+  diagnosis_codes: [M54.50]
+  urgency: standard
+  requested_by: Metro Pain Clinic
+  documents:
+    - doc_id: clinic-note
+      kind: progress_note
+      author: clinic physician
+      written_on: 2026-11-02
+      text: |
+        Chronic axial low back pain for 1 year, no radiation into the legs, neurologic exam normal.
+        MRI: mild multilevel degenerative disc disease without stenosis or nerve root compression.
+        NRS 6/10. Tried PT for 8 weeks and NSAIDs without benefit. Does home exercises.
+        Plan: lumbar interlaminar epidural steroid injection with fluoroscopy and contrast for axial back pain.
+labels:
+  supported_diagnosis:
+    finding: contradicted
+    evidence: [{doc_id: clinic-note, quote: "mild multilevel degenerative disc disease without stenosis or nerve root compression"}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: clinic-note, quote: "NRS 6/10."}]
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: clinic-note, quote: "Tried PT for 8 weeks and NSAIDs without benefit."}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: clinic-note, quote: "epidural steroid injection with fluoroscopy and contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: clinic-note, quote: "Does home exercises."}]
+  nonspecific_pain:
+    finding: documented
+    evidence: [{doc_id: clinic-note, quote: "Chronic axial low back pain for 1 year, no radiation into the legs"}]
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: refer_to_clinician

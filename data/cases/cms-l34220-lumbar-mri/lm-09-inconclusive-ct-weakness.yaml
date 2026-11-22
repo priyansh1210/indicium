@@ -1,0 +1,40 @@
+case_id: lm-09-inconclusive-ct-weakness
+policy_id: cms-l34220-lumbar-mri
+description: Prior CT was inconclusive (so not a duplicate) and foot drop is progressing (a red flag); spread over two notes.
+tags: [multi_document, red_flag_path]
+request:
+  external_id: syn-pa-100109
+  patient: {member_id: SYN-410566, name: Sofia Lindgren, birth_date: 1964-02-11, sex: female}
+  procedure_code: "72148"
+  diagnosis_codes: [M51.17, M21.371]
+  urgency: expedited
+  requested_by: Pinecrest Neurology
+  documents:
+    - doc_id: ct-report
+      kind: imaging_report
+      author: Radiology
+      written_on: 2026-10-30
+      text: |
+        CT LUMBAR SPINE WITHOUT CONTRAST
+        Findings: Study is limited by streak artifact from bilateral hip prostheses. Possible disc material at L4-5, not well characterized.
+        Impression: Inconclusive for nerve root compression. MRI recommended if clinically indicated.
+    - doc_id: neuro-note
+      kind: progress_note
+      author: A. Haddad, MD
+      written_on: 2026-11-14
+      text: |
+        Left foot dorsiflexion weakness has progressed from 4/5 two weeks ago to 3/5 today; she now trips on the left foot.
+        Given progressive motor deficit, MRI lumbar spine is needed to evaluate for L5 root compression; if present she will be referred for surgical decompression.
+labels:
+  red_flag:
+    finding: documented
+    evidence: [{doc_id: neuro-note, quote: "Left foot dorsiflexion weakness has progressed from 4/5 two weeks ago to 3/5 today"}]
+  failed_conservative_care: {finding: absent}
+  results_guide_treatment:
+    finding: documented
+    evidence: [{doc_id: neuro-note, quote: "if present she will be referred for surgical decompression"}]
+  duplicate_imaging:
+    finding: contradicted
+    evidence: [{doc_id: ct-report, quote: "Inconclusive for nerve root compression."}]
+  investigational_use: {finding: absent}
+expected: meets_criteria

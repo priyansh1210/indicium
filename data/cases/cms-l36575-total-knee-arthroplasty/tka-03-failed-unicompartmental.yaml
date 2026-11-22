@@ -1,0 +1,32 @@
+case_id: tka-03-failed-unicompartmental
+policy_id: cms-l36575-total-knee-arthroplasty
+description: A failed unicompartmental knee replacement is its own listed indication.
+tags: [alternate_path]
+request:
+  external_id: syn-pa-300103
+  patient: {member_id: SYN-630092, name: Judith Esposito, birth_date: 1958-10-19, sex: female}
+  procedure_code: "27447"
+  diagnosis_codes: [T84.032A]
+  urgency: standard
+  requested_by: Hillside Joint Center
+  documents:
+    - doc_id: revision-consult
+      kind: progress_note
+      author: P. Nwachukwu, MD
+      written_on: 2026-11-07
+      text: |
+        Right medial unicompartmental knee arthroplasty in 2019. Over the past year increasing pain with weight bearing.
+        Radiographs and CT show aseptic loosening of the tibial component of the unicompartmental implant with progressive lateral compartment arthritis.
+        Assessment: failed right unicompartmental knee replacement. Plan: conversion to right total knee arthroplasty.
+labels:
+  imaging_advanced_disease: {finding: absent}
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: revision-consult, quote: "Over the past year increasing pain with weight bearing."}]
+  failed_nonsurgical_management: {finding: absent}
+  other_indication:
+    finding: documented
+    evidence: [{doc_id: revision-consult, quote: "failed right unicompartmental knee replacement"}]
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: meets_criteria

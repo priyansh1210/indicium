@@ -1,0 +1,37 @@
+case_id: tka-06-cellulitis-at-site
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Criteria are otherwise met, but there is active cellulitis over the planned incision.
+tags: [exclusion]
+request:
+  external_id: syn-pa-300106
+  patient: {member_id: SYN-630231, name: Raymond Kessler, birth_date: 1955-12-30, sex: male}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.11]
+  urgency: standard
+  requested_by: Hillside Joint Center
+  documents:
+    - doc_id: preop
+      kind: progress_note
+      author: P. Nwachukwu, MD
+      written_on: 2026-11-16
+      text: |
+        Right knee: weight-bearing films with bone-on-bone medial compartment, osteophytes and subchondral cysts.
+        Pain limits walking to 2 blocks. Failed 4 months of PT, NSAIDs and two steroid injections.
+        Exam today: 6 x 4 cm area of warm erythema over the anterior right knee consistent with cellulitis; started cephalexin.
+        Plan: right TKA.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: preop, quote: "weight-bearing films with bone-on-bone medial compartment, osteophytes and subchondral cysts"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: preop, quote: "Pain limits walking to 2 blocks."}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: preop, quote: "Failed 4 months of PT, NSAIDs and two steroid injections."}]
+  other_indication: {finding: absent}
+  active_infection:
+    finding: documented
+    evidence: [{doc_id: preop, quote: "6 x 4 cm area of warm erythema over the anterior right knee consistent with cellulitis"}]
+  progressive_neurological_disease: {finding: absent}
+expected: refer_to_clinician

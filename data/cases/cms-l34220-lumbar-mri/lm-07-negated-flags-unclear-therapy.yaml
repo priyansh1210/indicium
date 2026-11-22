@@ -1,0 +1,32 @@
+case_id: lm-07-negated-flags-unclear-therapy
+policy_id: cms-l34220-lumbar-mri
+description: Every red flag is named but negated, a trap for keyword matching; conservative care is never described.
+tags: [negation, missing_information]
+request:
+  external_id: syn-pa-100107
+  patient: {member_id: SYN-410455, name: Priya Raman, birth_date: 1983-04-17, sex: female}
+  procedure_code: "72148"
+  diagnosis_codes: [M54.17]
+  urgency: standard
+  requested_by: Harbor Spine and Sport
+  documents:
+    - doc_id: spine-consult
+      kind: progress_note
+      author: D. Kowalczyk, DO
+      written_on: 2026-11-06
+      text: |
+        Red flag screen: negative for saddle anesthesia, negative for bowel or bladder incontinence, negative for fever or chills, negative for unexplained weight loss, no history of cancer, no IV drug use, no immunosuppression, no recent trauma.
+        Right S1 distribution pain for about two months, intermittent.
+        Exam: strength full, DTRs symmetric.
+        Assessment: lumbosacral radiculopathy. Considering a transforaminal epidural steroid injection at right L5-S1, and MRI is needed to plan the level and approach.
+labels:
+  red_flag:
+    finding: contradicted
+    evidence: [{doc_id: spine-consult, quote: "negative for saddle anesthesia, negative for bowel or bladder incontinence, negative for fever or chills"}]
+  failed_conservative_care: {finding: absent}
+  results_guide_treatment:
+    finding: documented
+    evidence: [{doc_id: spine-consult, quote: "Considering a transforaminal epidural steroid injection at right L5-S1, and MRI is needed to plan the level and approach."}]
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: pend_for_info

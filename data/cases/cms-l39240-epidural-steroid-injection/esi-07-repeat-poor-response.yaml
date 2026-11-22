@@ -1,0 +1,47 @@
+case_id: esi-07-repeat-poor-response
+policy_id: cms-l39240-epidural-steroid-injection
+description: The first injection gave brief 20% relief and the same injection is being repeated without a changed approach.
+tags: [repeat, exclusion]
+request:
+  external_id: syn-pa-200107
+  patient: {member_id: SYN-520290, name: Ruth Abernathy, birth_date: 1953-12-03, sex: female}
+  procedure_code: "62323"
+  diagnosis_codes: [M48.062]
+  urgency: standard
+  requested_by: Metro Pain Clinic
+  documents:
+    - doc_id: repeat-request
+      kind: progress_note
+      author: clinic physician
+      written_on: 2026-11-17
+      text: |
+        Neurogenic claudication from L3-4 central stenosis on MRI, matching her symptoms.
+        Interlaminar ESI at L3-4 on 10/06/2026 gave about 20% relief that lasted two weeks.
+        NRS 8/10, ODI 58%. PT for 3 months previously without help. Walking program daily.
+        Plan: repeat the same L3-4 interlaminar ESI with fluoroscopy and contrast.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: repeat-request, quote: "Neurogenic claudication from L3-4 central stenosis on MRI, matching her symptoms."}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: repeat-request, quote: "NRS 8/10, ODI 58%."}]
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: repeat-request, quote: "PT for 3 months previously without help."}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: repeat-request, quote: "repeat the same L3-4 interlaminar ESI with fluoroscopy and contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: repeat-request, quote: "Walking program daily."}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response:
+    finding: documented
+    evidence:
+      - {doc_id: repeat-request, quote: "gave about 20% relief that lasted two weeks"}
+      - {doc_id: repeat-request, quote: "repeat the same L3-4 interlaminar ESI"}
+expected: refer_to_clinician

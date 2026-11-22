@@ -1,0 +1,50 @@
+case_id: esi-01-radiculopathy-meets
+policy_id: cms-l39240-epidural-steroid-injection
+description: Concordant L5 radiculopathy with NRS and ODI baseline, failed PT and gabapentin, fluoroscopic TFESI, home exercise.
+tags: []
+request:
+  external_id: syn-pa-200101
+  patient: {member_id: SYN-520014, name: Lorraine Ostrowski, birth_date: 1962-05-19, sex: female}
+  procedure_code: "64483"
+  diagnosis_codes: [M54.16, M48.062]
+  urgency: standard
+  requested_by: Cedar Pain Institute
+  documents:
+    - doc_id: mri-report
+      kind: imaging_report
+      author: Radiology
+      written_on: 2026-10-02
+      text: |
+        MRI LUMBAR SPINE: At L4-5 there is moderate to severe left foraminal stenosis from a disc osteophyte complex contacting the exiting left L4 and traversing L5 nerve roots.
+    - doc_id: pain-consult
+      kind: progress_note
+      author: M. Delacroix, MD (pain medicine)
+      written_on: 2026-11-04
+      text: |
+        Left buttock and lateral leg pain into the dorsum of the foot for 4 months, consistent with left L5 radiculopathy and concordant with the MRI findings at L4-5.
+        Baseline scores today: NRS 8/10, Oswestry Disability Index 52%. Unable to walk more than one block or sit through a workday.
+        Treatment so far: 8 weeks of physical therapy and gabapentin titrated to 900 mg/day, without adequate relief.
+        Plan: left L4-5 transforaminal epidural steroid injection under fluoroscopic guidance with contrast. She will continue her daily home exercise program from PT. Will repeat NRS and ODI at follow-up.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: pain-consult, quote: "consistent with left L5 radiculopathy and concordant with the MRI findings at L4-5"}]
+  severity_baseline_scale:
+    finding: documented
+    evidence:
+      - {doc_id: pain-consult, quote: "Baseline scores today: NRS 8/10, Oswestry Disability Index 52%."}
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: pain-consult, quote: "8 weeks of physical therapy and gabapentin titrated to 900 mg/day, without adequate relief"}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: pain-consult, quote: "transforaminal epidural steroid injection under fluoroscopic guidance with contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: pain-consult, quote: "She will continue her daily home exercise program from PT."}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: meets_criteria

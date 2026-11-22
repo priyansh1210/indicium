@@ -1,0 +1,26 @@
+case_id: adv-05-wrong-body-region
+policy_id: cms-l34220-lumbar-mri
+description: Lumbar MRI requested, but the attached note is about neck pain; cervical findings must not satisfy lumbar criteria.
+tags: [irrelevant_notes]
+request:
+  external_id: syn-pa-900105
+  patient: {member_id: SYN-990171, name: Martin Szczepanski, birth_date: 1976-12-12, sex: male}
+  procedure_code: "72148"
+  diagnosis_codes: [M54.16]
+  urgency: standard
+  requested_by: Elm Street Primary Care
+  documents:
+    - doc_id: neck-visit
+      kind: progress_note
+      author: J. Moreau, PA-C
+      written_on: 2026-11-09
+      text: |
+        Neck pain radiating to the right arm for 8 weeks. Completed 6 weeks of PT for the neck without relief. Right C6 numbness.
+        Plan: imaging; considering cervical epidural injection depending on results.
+labels:
+  red_flag: {finding: absent}
+  failed_conservative_care: {finding: absent}
+  results_guide_treatment: {finding: absent}
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: pend_for_info

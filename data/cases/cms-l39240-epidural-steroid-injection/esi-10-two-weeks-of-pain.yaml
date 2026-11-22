@@ -1,0 +1,40 @@
+case_id: esi-10-two-weeks-of-pain
+policy_id: cms-l39240-epidural-steroid-injection
+description: Only two weeks of radicular pain and no conservative care yet; ultrasound guidance without a stated reason.
+tags: [missing_information]
+request:
+  external_id: syn-pa-200110
+  patient: {member_id: SYN-520412, name: Oscar Lindahl, birth_date: 1985-02-28, sex: male}
+  procedure_code: "62323"
+  diagnosis_codes: [M51.16]
+  urgency: standard
+  requested_by: Metro Pain Clinic
+  documents:
+    - doc_id: new-patient
+      kind: progress_note
+      author: clinic physician
+      written_on: 2026-11-19
+      text: |
+        Right L5 radicular pain for two weeks after lifting at work. MRI: right L4-5 disc protrusion contacting the L5 root, matching symptoms.
+        NRS 8/10. Has not started physical therapy or medication.
+        Patient wants fast relief; plan interlaminar ESI under ultrasound guidance.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: new-patient, quote: "MRI: right L4-5 disc protrusion contacting the L5 root, matching symptoms."}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: new-patient, quote: "NRS 8/10."}]
+  failed_conservative_care:
+    finding: contradicted
+    evidence: [{doc_id: new-patient, quote: "Has not started physical therapy or medication."}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: contradicted
+    evidence: [{doc_id: new-patient, quote: "plan interlaminar ESI under ultrasound guidance"}]
+  active_rehabilitation: {finding: absent}
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: refer_to_clinician

@@ -1,0 +1,36 @@
+case_id: lm-08-duplicates-recent-ct
+policy_id: cms-l34220-lumbar-mri
+description: A clear lumbar CT three weeks ago already answered the question; the MRI is "for completeness".
+tags: [exclusion]
+request:
+  external_id: syn-pa-100108
+  patient: {member_id: SYN-410519, name: Howard Lin, birth_date: 1959-09-25, sex: male}
+  procedure_code: "72148"
+  diagnosis_codes: [M51.16]
+  urgency: standard
+  requested_by: Westfield Orthopedics
+  documents:
+    - doc_id: ortho-note
+      kind: progress_note
+      author: B. Castellanos, MD
+      written_on: 2026-11-10
+      text: |
+        Ongoing left L5 radicular pain despite 8 weeks of PT and gabapentin, no improvement.
+        CT lumbar spine on 10/20/2026 clearly shows a large left paracentral L4-5 disc extrusion compressing the traversing L5 root; findings are definitive.
+        Surgery (L4-5 microdiscectomy) is already scheduled for 12/02 based on the CT.
+        MRI lumbar spine also ordered for completeness before surgery.
+labels:
+  red_flag: {finding: absent}
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: ortho-note, quote: "Ongoing left L5 radicular pain despite 8 weeks of PT and gabapentin, no improvement."}]
+  results_guide_treatment:
+    finding: contradicted
+    evidence: [{doc_id: ortho-note, quote: "Surgery (L4-5 microdiscectomy) is already scheduled for 12/02 based on the CT."}]
+  duplicate_imaging:
+    finding: documented
+    evidence:
+      - {doc_id: ortho-note, quote: "findings are definitive"}
+      - {doc_id: ortho-note, quote: "MRI lumbar spine also ordered for completeness before surgery."}
+  investigational_use: {finding: absent}
+expected: refer_to_clinician

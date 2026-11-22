@@ -1,0 +1,41 @@
+case_id: cpap-09-stroke-history
+policy_id: cms-l33718-cpap
+description: AHI 6 with 38 events qualifies because of a documented prior stroke.
+tags: [numeric]
+request:
+  external_id: syn-pa-400109
+  patient: {member_id: SYN-740345, name: Harold Ekwueme, birth_date: 1950-06-18, sex: male}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeshore Sleep Medicine
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: N. Abernathy, MD (sleep medicine)
+      written_on: 2026-10-08
+      text: |
+        In-person sleep consult. History of left MCA ischemic stroke in 2024 with mild residual right hand weakness. Snoring and witnessed pauses. Ordered in-lab polysomnogram.
+    - doc_id: psg
+      kind: sleep_study
+      author: Lakeshore Sleep Lab
+      written_on: 2026-10-22
+      text: |
+        Type I polysomnogram ordered by Dr. N. Abernathy. Total sleep time 6.3 hours. 38 respiratory events, AHI 6.0 events/hour, predominantly obstructive.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "In-person sleep consult."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "Type I polysomnogram ordered by Dr. N. Abernathy."}]
+  ahi_15_or_more:
+    finding: contradicted
+    evidence: [{doc_id: psg, quote: "AHI 6.0 events/hour"}]
+  ahi_5_to_14:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "38 respiratory events, AHI 6.0 events/hour"}]
+  symptoms_or_comorbidity:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "History of left MCA ischemic stroke in 2024"}]
+expected: meets_criteria

@@ -1,0 +1,42 @@
+case_id: cpap-01-severe-osa
+policy_id: cms-l33718-cpap
+description: In-person evaluation, then a facility study with AHI 32 and 214 events.
+tags: [multi_document]
+request:
+  external_id: syn-pa-400101
+  patient: {member_id: SYN-740019, name: Curtis Delgado, birth_date: 1966-09-03, sex: male}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeshore Sleep Medicine
+  documents:
+    - doc_id: sleep-consult
+      kind: progress_note
+      author: N. Abernathy, MD (sleep medicine)
+      written_on: 2026-09-15
+      text: |
+        In-person new patient visit for snoring, witnessed apneas and morning headaches. BMI 36, neck 18 in, Mallampati IV.
+        Assessment: high pretest probability of obstructive sleep apnea. Ordering attended in-lab polysomnogram.
+    - doc_id: psg
+      kind: sleep_study
+      author: Lakeshore Sleep Lab
+      written_on: 2026-10-01
+      text: |
+        TYPE I ATTENDED POLYSOMNOGRAM. Ordered by Dr. N. Abernathy.
+        Total sleep time 401 minutes. Apneas 88, hypopneas 126, total 214 events. AHI 32.0 events/hour. Lowest SpO2 79%.
+        Interpretation: severe obstructive sleep apnea.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: sleep-consult, quote: "In-person new patient visit for snoring, witnessed apneas and morning headaches."}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "TYPE I ATTENDED POLYSOMNOGRAM. Ordered by Dr. N. Abernathy."}]
+  ahi_15_or_more:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "total 214 events. AHI 32.0 events/hour"}]
+  ahi_5_to_14:
+    finding: contradicted
+    evidence: [{doc_id: psg, quote: "AHI 32.0 events/hour"}]
+  symptoms_or_comorbidity: {finding: absent}
+expected: meets_criteria

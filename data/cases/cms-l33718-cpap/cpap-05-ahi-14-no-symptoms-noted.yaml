@@ -1,0 +1,39 @@
+case_id: cpap-05-ahi-14-no-symptoms-noted
+policy_id: cms-l33718-cpap
+description: AHI 14, one below the threshold, and nothing about symptoms either way; more information is needed.
+tags: [numeric, missing_information]
+request:
+  external_id: syn-pa-400105
+  patient: {member_id: SYN-740188, name: Tobias Hartmann, birth_date: 1979-07-30, sex: male}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Lakeshore Sleep Medicine
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: N. Abernathy, MD (sleep medicine)
+      written_on: 2026-10-05
+      text: |
+        In-person consult for suspected obstructive sleep apnea, referred by dentist for bruxism and snoring. In-lab study ordered.
+    - doc_id: psg
+      kind: sleep_study
+      author: Lakeshore Sleep Lab
+      written_on: 2026-10-19
+      text: |
+        Type I polysomnogram ordered by Dr. N. Abernathy. Total sleep time 6.2 hours, 87 events, AHI 14.0 events/hour.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "In-person consult for suspected obstructive sleep apnea"}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "Type I polysomnogram ordered by Dr. N. Abernathy."}]
+  ahi_15_or_more:
+    finding: contradicted
+    evidence: [{doc_id: psg, quote: "AHI 14.0 events/hour"}]
+  ahi_5_to_14:
+    finding: documented
+    evidence: [{doc_id: psg, quote: "87 events, AHI 14.0 events/hour"}]
+  symptoms_or_comorbidity: {finding: absent}
+expected: pend_for_info

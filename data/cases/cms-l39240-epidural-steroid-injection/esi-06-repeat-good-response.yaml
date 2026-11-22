@@ -1,0 +1,45 @@
+case_id: esi-06-repeat-good-response
+policy_id: cms-l39240-epidural-steroid-injection
+description: Second injection after the first gave 70% relief for four months; the repeat rule is satisfied.
+tags: [repeat]
+request:
+  external_id: syn-pa-200106
+  patient: {member_id: SYN-520248, name: Samuel Adeyemi, birth_date: 1967-01-22, sex: male}
+  procedure_code: "64483"
+  diagnosis_codes: [M54.17, M51.17]
+  urgency: standard
+  requested_by: Valley Spine Center
+  documents:
+    - doc_id: repeat-note
+      kind: progress_note
+      author: R. Gupta, MD
+      written_on: 2026-11-13
+      text: |
+        Right S1 radiculopathy from an L5-S1 disc protrusion seen on MRI, concordant with his exam (absent right ankle jerk, S1 sensory loss).
+        First right L5-S1 TFESI on 06/18/2026: NRS went from 8 to 2 (75% improvement) and stayed there for four months; ODI improved from 50% to 22%.
+        Pain has now returned to NRS 7/10, ODI 46%. He had failed 6 weeks of PT and NSAIDs before the first injection.
+        Plan: repeat right L5-S1 TFESI with fluoroscopic guidance and contrast. Continues the core strengthening home program.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: repeat-note, quote: "Right S1 radiculopathy from an L5-S1 disc protrusion seen on MRI, concordant with his exam"}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: repeat-note, quote: "Pain has now returned to NRS 7/10, ODI 46%."}]
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: repeat-note, quote: "He had failed 6 weeks of PT and NSAIDs before the first injection."}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: repeat-note, quote: "repeat right L5-S1 TFESI with fluoroscopic guidance and contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: repeat-note, quote: "Continues the core strengthening home program."}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response:
+    finding: contradicted
+    evidence: [{doc_id: repeat-note, quote: "NRS went from 8 to 2 (75% improvement) and stayed there for four months"}]
+expected: meets_criteria

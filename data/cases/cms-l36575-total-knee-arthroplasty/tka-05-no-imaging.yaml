@@ -1,0 +1,32 @@
+case_id: tka-05-no-imaging
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Good history and failed conservative care, but no imaging findings anywhere in the record.
+tags: [missing_information]
+request:
+  external_id: syn-pa-300105
+  patient: {member_id: SYN-630188, name: Agnes Petrov, birth_date: 1950-04-23, sex: female}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.12]
+  urgency: standard
+  requested_by: Bayview Orthopaedic Surgery
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: L. Fairbanks, MD
+      written_on: 2026-11-11
+      text: |
+        76F, left knee arthritis, pain with every step and unable to do her own shopping.
+        Six months of supervised PT, meloxicam, and a hyaluronic acid series did not help.
+        Plan: left total knee arthroplasty. Films to be obtained at pre-op visit.
+labels:
+  imaging_advanced_disease: {finding: absent}
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "pain with every step and unable to do her own shopping"}]
+  failed_nonsurgical_management:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "Six months of supervised PT, meloxicam, and a hyaluronic acid series did not help."}]
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: pend_for_info

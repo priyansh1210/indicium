@@ -1,0 +1,34 @@
+case_id: lm-03-cauda-equina-signs
+policy_id: cms-l34220-lumbar-mri
+description: Saddle anesthesia and new urinary retention seen in the ED; neurosurgery is waiting on the scan.
+tags: [red_flag_path, expedited]
+request:
+  external_id: syn-pa-100103
+  patient: {member_id: SYN-410251, name: Marisol Paredes, birth_date: 1979-06-21, sex: female}
+  procedure_code: "72148"
+  diagnosis_codes: [G83.4]
+  urgency: expedited
+  requested_by: Saint Brigid Emergency Department
+  documents:
+    - doc_id: ed-note
+      kind: progress_note
+      author: ED attending
+      written_on: 2026-11-18
+      text: |
+        47 y/o female with known L5-S1 disc bulge presents with 2 days of worsening low back pain and numbness "in the seat area". Reports new difficulty starting urination since this morning.
+        Exam: decreased pinprick sensation in the perineal region. Post-void residual 420 mL. Rectal tone mildly decreased. Bilateral ankle plantarflexion 4/5.
+        Impression: suspected cauda equina syndrome.
+        Plan: emergent MRI lumbar spine. Neurosurgery consulted and aware; if compression is confirmed, patient will go for surgical decompression tonight.
+labels:
+  red_flag:
+    finding: documented
+    evidence:
+      - {doc_id: ed-note, quote: "decreased pinprick sensation in the perineal region"}
+      - {doc_id: ed-note, quote: "Reports new difficulty starting urination since this morning."}
+  failed_conservative_care: {finding: absent}
+  results_guide_treatment:
+    finding: documented
+    evidence: [{doc_id: ed-note, quote: "if compression is confirmed, patient will go for surgical decompression tonight"}]
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: meets_criteria

@@ -1,0 +1,41 @@
+case_id: cpap-08-too-few-events
+policy_id: cms-l33718-cpap
+description: AHI 16 from a 1.5-hour recording with only 24 events, below the 30 the policy requires.
+tags: [numeric]
+request:
+  external_id: syn-pa-400108
+  patient: {member_id: SYN-740301, name: Celeste Dubois, birth_date: 1983-12-09, sex: female}
+  procedure_code: E0601
+  diagnosis_codes: [G47.33]
+  urgency: standard
+  requested_by: Direct Sleep DME
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: F. Ruiz, MD
+      written_on: 2026-09-08
+      text: |
+        In-person evaluation for possible sleep apnea: snoring and nocturia, no daytime sleepiness. Ordered HSAT.
+    - doc_id: hsat
+      kind: sleep_study
+      author: Direct Sleep Testing
+      written_on: 2026-09-20
+      text: |
+        Type III HSAT ordered by Dr. F. Ruiz. Device came off early: only 1.5 hours of valid recording. 24 events, AHI 16 events/hour. Technically limited study.
+labels:
+  in_person_evaluation:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "In-person evaluation for possible sleep apnea"}]
+  valid_sleep_test:
+    finding: documented
+    evidence: [{doc_id: hsat, quote: "Type III HSAT ordered by Dr. F. Ruiz."}]
+  ahi_15_or_more:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "only 1.5 hours of valid recording. 24 events, AHI 16 events/hour"}]
+  ahi_5_to_14:
+    finding: contradicted
+    evidence: [{doc_id: hsat, quote: "AHI 16 events/hour"}]
+  symptoms_or_comorbidity:
+    finding: contradicted
+    evidence: [{doc_id: consult, quote: "no daytime sleepiness"}]
+expected: refer_to_clinician

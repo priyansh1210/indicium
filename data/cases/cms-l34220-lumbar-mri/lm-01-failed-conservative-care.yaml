@@ -1,0 +1,35 @@
+case_id: lm-01-failed-conservative-care
+policy_id: cms-l34220-lumbar-mri
+description: No red flags (all denied), six weeks of PT and NSAIDs failed, injection depends on the result.
+tags: [negation]
+request:
+  external_id: syn-pa-100101
+  patient: {member_id: SYN-410022, name: Dana Whitfield, birth_date: 1968-03-14, sex: female}
+  procedure_code: "72148"
+  diagnosis_codes: [M51.16]
+  urgency: standard
+  requested_by: Lakeside Family Medicine
+  documents:
+    - doc_id: pn-2026-10-28
+      kind: progress_note
+      author: R. Okafor, MD
+      written_on: 2026-10-28
+      text: |
+        CC: low back pain with radiation to the left buttock and thigh.
+        HPI: 58 y/o F, symptoms since early September after moving furniture. She completed six weeks of formal physical therapy (11 visits) and has taken naproxen 500 mg twice daily throughout, with no meaningful improvement. Oswestry 44% today, unchanged from intake.
+        ROS: Denies fever, chills, weight loss, bowel or bladder changes. No history of cancer. No recent infections.
+        Exam: Lumbar paraspinal tenderness. Strength 5/5 bilateral lower extremities, reflexes 2+ and symmetric, sensation intact, straight leg raise negative bilaterally.
+        A/P: Lumbar disc displacement with persistent radiating pain after a full conservative trial. MRI lumbar spine without contrast. If MRI shows a disc lesion at L4-5 or L5-S1, plan referral for an epidural steroid injection; otherwise continue home program.
+labels:
+  red_flag:
+    finding: contradicted
+    evidence: [{doc_id: pn-2026-10-28, quote: "Denies fever, chills, weight loss, bowel or bladder changes. No history of cancer."}]
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: pn-2026-10-28, quote: "She completed six weeks of formal physical therapy (11 visits) and has taken naproxen 500 mg twice daily throughout, with no meaningful improvement."}]
+  results_guide_treatment:
+    finding: documented
+    evidence: [{doc_id: pn-2026-10-28, quote: "If MRI shows a disc lesion at L4-5 or L5-S1, plan referral for an epidural steroid injection"}]
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: meets_criteria

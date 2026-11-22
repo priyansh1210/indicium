@@ -1,0 +1,51 @@
+case_id: adv-06-evidence-buried-in-long-note
+policy_id: cms-l39240-epidural-steroid-injection
+description: A long multi-problem visit where each piece of evidence sits deep inside unrelated content.
+tags: [long_note]
+request:
+  external_id: syn-pa-900106
+  patient: {member_id: SYN-990209, name: Evelyn Marsh, birth_date: 1960-07-19, sex: female}
+  procedure_code: "64483"
+  diagnosis_codes: [M51.17]
+  urgency: standard
+  requested_by: Lakeside Family Medicine
+  documents:
+    - doc_id: annual-visit
+      kind: progress_note
+      author: R. Okafor, MD
+      written_on: 2026-11-20
+      text: |
+        ANNUAL WELLNESS VISIT AND PROBLEM-FOCUSED CARE
+        1. Type 2 diabetes: A1c 7.4, up from 7.1. Continue metformin 1000 mg BID; add empagliflozin 10 mg daily. Foot exam normal, monofilament intact. Retinal exam due in January.
+        2. Hypertension: 132/78 today on lisinopril 20 mg. Continue. BMP in 3 months.
+        3. Hyperlipidemia: LDL 96 on atorvastatin 40 mg. Discussed diet. No change.
+        4. Health maintenance: Mammogram up to date. Colonoscopy 2022 normal, next 2032. Influenza vaccine given today. Shingles vaccine series complete. Discussed fall prevention.
+        5. Hypothyroidism: TSH 2.1 on levothyroxine 75 mcg. Continue.
+        6. Back and leg pain: Right buttock and calf pain with numbness on the lateral foot for 3 months. MRI 10/28/2026 shows a right L5-S1 disc extrusion compressing the right S1 nerve root, concordant with her absent right ankle reflex and S1 sensory loss. She did 6 weeks of PT and a trial of gabapentin and meloxicam with no improvement. Today NRS 7/10 and Oswestry 46%, cannot stand to cook a meal. Referring for a right L5-S1 transforaminal epidural steroid injection under fluoroscopy with contrast; she will continue the home exercise program from PT.
+        7. GERD: well controlled on omeprazole 20 mg. Attempt step-down in spring.
+        8. Mood: PHQ-9 of 4. No changes.
+        9. Osteopenia: DEXA T-score -1.6. Calcium and vitamin D. Repeat in 2 years.
+        10. Seasonal allergies: loratadine as needed.
+        Medication reconciliation completed. Return in 3 months or sooner if needed.
+labels:
+  supported_diagnosis:
+    finding: documented
+    evidence: [{doc_id: annual-visit, quote: "MRI 10/28/2026 shows a right L5-S1 disc extrusion compressing the right S1 nerve root, concordant with her absent right ankle reflex and S1 sensory loss."}]
+  severity_baseline_scale:
+    finding: documented
+    evidence: [{doc_id: annual-visit, quote: "Today NRS 7/10 and Oswestry 46%, cannot stand to cook a meal."}]
+  failed_conservative_care:
+    finding: documented
+    evidence: [{doc_id: annual-visit, quote: "She did 6 weeks of PT and a trial of gabapentin and meloxicam with no improvement."}]
+  refractory_herpes_zoster: {finding: absent}
+  image_guidance:
+    finding: documented
+    evidence: [{doc_id: annual-visit, quote: "transforaminal epidural steroid injection under fluoroscopy with contrast"}]
+  active_rehabilitation:
+    finding: documented
+    evidence: [{doc_id: annual-visit, quote: "she will continue the home exercise program from PT"}]
+  nonspecific_pain: {finding: absent}
+  contraindication: {finding: absent}
+  session_limit_reached: {finding: absent}
+  repeat_without_response: {finding: absent}
+expected: meets_criteria

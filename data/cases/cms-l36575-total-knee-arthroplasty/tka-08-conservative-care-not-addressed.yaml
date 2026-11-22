@@ -1,0 +1,32 @@
+case_id: tka-08-conservative-care-not-addressed
+policy_id: cms-l36575-total-knee-arthroplasty
+description: Imaging and disability are clear, but the record never mentions non-surgical treatment or why it was skipped.
+tags: [missing_information]
+request:
+  external_id: syn-pa-300108
+  patient: {member_id: SYN-630305, name: Theodore Banerjee, birth_date: 1960-01-15, sex: male}
+  procedure_code: "27447"
+  diagnosis_codes: [M17.11]
+  urgency: standard
+  requested_by: Hillside Joint Center
+  documents:
+    - doc_id: consult
+      kind: progress_note
+      author: P. Nwachukwu, MD
+      written_on: 2026-11-19
+      text: |
+        66M right knee. Radiographs: severe joint space narrowing medially with subchondral cysts and large osteophytes.
+        Difficulty with stairs and squatting; walks about 3 blocks before stopping.
+        Discussed options. He would like to proceed with right total knee arthroplasty.
+labels:
+  imaging_advanced_disease:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "severe joint space narrowing medially with subchondral cysts and large osteophytes"}]
+  pain_or_disability:
+    finding: documented
+    evidence: [{doc_id: consult, quote: "Difficulty with stairs and squatting; walks about 3 blocks before stopping."}]
+  failed_nonsurgical_management: {finding: absent}
+  other_indication: {finding: absent}
+  active_infection: {finding: absent}
+  progressive_neurological_disease: {finding: absent}
+expected: pend_for_info

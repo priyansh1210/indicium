@@ -1,0 +1,27 @@
+case_id: lm-05-therapy-response-unknown
+policy_id: cms-l34220-lumbar-mri
+description: Physical therapy has run for five weeks but the notes never say whether it helped, nor why the MRI is needed.
+tags: [missing_information]
+request:
+  external_id: syn-pa-100105
+  patient: {member_id: SYN-410377, name: Gregory Achterberg, birth_date: 1971-08-09, sex: male}
+  procedure_code: "72148"
+  diagnosis_codes: [M54.16]
+  urgency: standard
+  requested_by: Elm Street Primary Care
+  documents:
+    - doc_id: pcp-note
+      kind: progress_note
+      author: J. Moreau, PA-C
+      written_on: 2026-11-03
+      text: |
+        Follow-up for lumbar radiculopathy. Patient started physical therapy five weeks ago, twice weekly. Taking meloxicam 15 mg daily.
+        Vitals stable. Gait normal.
+        Order: MRI L-spine w/o contrast. RTC 4 weeks.
+labels:
+  red_flag: {finding: absent}
+  failed_conservative_care: {finding: absent}
+  results_guide_treatment: {finding: absent}
+  duplicate_imaging: {finding: absent}
+  investigational_use: {finding: absent}
+expected: pend_for_info
