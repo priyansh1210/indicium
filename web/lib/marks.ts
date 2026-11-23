@@ -17,3 +17,10 @@ export function segments(text: string, marks: Mark[]): Segment[] {
   }
   return out;
 }
+
+/** Centre `target` inside the scrolling `panel` without moving the page around it. */
+export function centreIn(panel: HTMLElement, target: HTMLElement, behavior: ScrollBehavior) {
+  const p = panel.getBoundingClientRect();
+  const t = target.getBoundingClientRect();
+  panel.scrollBy({ top: t.top - p.top - (panel.clientHeight - t.height) / 2, behavior });
+}

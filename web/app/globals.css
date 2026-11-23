@@ -7,6 +7,7 @@
   --color-tint: #f7f5f0;
   --color-ink: #1d1c1a;
   --color-ink-2: #5b5852;
+  --color-ink-3: #8a857c;
   --color-rule: #e4e0d8;
   --color-accent: #2a4f7a;
   --color-accent-soft: #e6edf5;
@@ -20,10 +21,16 @@
   --color-missing-soft: #f7efdc;
   --color-conflict: #6a4a93;
   --color-conflict-soft: #efe9f6;
+  /* Chart marks only (validated with the dataviz palette script): the point and its context. */
+  --color-chart: #3b6aa3;
+  --color-chart-muted: #b3ada2;
 
   --font-sans: var(--font-public-sans), system-ui, sans-serif;
   --font-serif: var(--font-source-serif), Georgia, serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  /* One easing family for the whole product: quick out, long settle. */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 html {
@@ -38,6 +45,11 @@ body {
   line-height: 1.5;
 }
 
+::selection {
+  background: var(--color-marker);
+  color: var(--color-ink);
+}
+
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
@@ -45,19 +57,26 @@ body {
 }
 
 @layer components {
+  .display {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
   .title {
     font-family: var(--font-serif);
-    font-size: 28px;
+    font-optical-sizing: auto;
+    font-size: 32px;
     font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
   }
   .heading {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-ink-2);
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--color-ink);
   }
   .sheet {
     background: var(--color-paper);
@@ -73,53 +92,94 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    height: 36px;
+    height: 38px;
     padding: 0 14px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 14px;
     border: 1px solid var(--color-rule);
     background: var(--color-paper);
-    transition: background-color 120ms, border-color 120ms;
+    transition:
+      background-color 160ms var(--ease-out),
+      border-color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
   }
   .btn:hover:not(:disabled) {
     background: var(--color-tint);
+    border-color: #d3cec4;
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
   }
   .btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
   }
   .btn-primary {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: #fff;
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
   }
   .btn-primary:hover:not(:disabled) {
-    background: #213f62;
+    background: #34322e;
+    border-color: #34322e;
   }
   .field {
     width: 100%;
     border: 1px solid var(--color-rule);
     border-radius: 8px;
-    padding: 8px 10px;
+    padding: 9px 11px;
     background: var(--color-paper);
+    transition: border-color 160ms var(--ease-out);
+  }
+  .field:hover {
+    border-color: #d3cec4;
   }
   .field:focus-visible {
     outline-offset: 0;
+    border-color: var(--color-accent);
+  }
+
+  /* The product's one gesture: a highlighter stroke. It marks evidence, the place you are
+     (navigation, tabs) and the item being looked at, and it always sweeps left to right. */
+  .stroke {
+    background-image: linear-gradient(var(--stroke, var(--color-marker)), var(--stroke, var(--color-marker)));
+    background-repeat: no-repeat;
+    background-position: 0 var(--stroke-y, 100%);
+    background-size: 0% var(--stroke-h, 100%);
+    transition: background-size 480ms var(--ease-out);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .stroke[data-on="true"] {
+    background-size: 100% var(--stroke-h, 100%);
+  }
+  .stroke-under {
+    --stroke-h: 38%;
+    --stroke-y: 88%;
   }
 }
 
-/* Evidence marks in clinical documents. */
+/* Evidence marks in documents. The base highlight is always there; the one being looked at gets
+   a stronger stroke swept over it, so the eye follows from checklist to sentence. */
 mark.evidence {
-  background: var(--color-marker);
   color: inherit;
+  cursor: pointer;
   border-radius: 2px;
   padding: 0 1px;
-  cursor: pointer;
+  background-color: var(--color-marker);
+  background-image: linear-gradient(var(--color-marker-strong), var(--color-marker-strong));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size 520ms var(--ease-out);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+mark.evidence:hover {
+  background-size: 100% 100%;
 }
 mark.evidence[data-active="true"] {
-  background: var(--color-marker-strong);
-  box-shadow: 0 0 0 2px var(--color-marker-strong);
+  background-size: 100% 100%;
 }
 mark.suspicious {
   background: var(--color-unmet-soft);
@@ -128,13 +188,48 @@ mark.suspicious {
   text-underline-offset: 3px;
 }
 
+/* A page's opening block settles in once. Lists of rows follow it with a short stagger
+   (style="--i: n"). Nothing here hides content when CSS animations are off. */
 @media (prefers-reduced-motion: no-preference) {
-  mark.evidence[data-active="true"] {
-    animation: settle 700ms ease-out;
+  .rise {
+    animation: rise 420ms var(--ease-out) both;
+    animation-delay: calc(min(var(--i, 0), 12) * 35ms);
   }
-  @keyframes settle {
+  @keyframes rise {
     from {
-      box-shadow: 0 0 0 6px var(--color-marker-strong);
+      opacity: 0;
+      transform: translateY(8px);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Landing intro: the first frame the hero waits in, set before hydration by INTRO in
+   app/welcome/split.tsx. If the intro never runs, the fallback shows everything after 3 s. */
+[data-intro] [data-hero] [data-word] > span {
+  transform: translateY(110%);
+}
+[data-intro] [data-hero-sub],
+[data-intro] [data-hero-example] {
+  opacity: 0;
+}
+[data-intro] [data-hero] [data-word] > span,
+[data-intro] [data-hero-sub],
+[data-intro] [data-hero-example] {
+  animation: intro-fallback 1ms 3s both;
+}
+@keyframes intro-fallback {
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

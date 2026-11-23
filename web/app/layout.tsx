@@ -4,7 +4,8 @@ import { IBM_Plex_Mono, Public_Sans, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
 const sans = Public_Sans({ subsets: ["latin"], variable: "--font-public-sans" });
-const serif = Source_Serif_4({ subsets: ["latin"], variable: "--font-source-serif" });
+// The optical-size axis lets one serif set both a 104px headline and 16px clinical notes well.
+const serif = Source_Serif_4({ subsets: ["latin"], axes: ["opsz"], variable: "--font-source-serif" });
 const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],

@@ -15,8 +15,9 @@ patients and notes are synthetic. No real patient data is used anywhere.
 
 ![A request whose note carries instructions aimed at an automated reviewer: the case goes to a person and the line is underlined](docs/images/flagged-case.png)
 
-More: [worklist](docs/images/worklist.png) · [policy with its source sentences](docs/images/policy.png) ·
-[phone](docs/images/phone.png). Screens show synthetic cases reviewed by a local Qwen3-4B model.
+More: [welcome page](docs/images/welcome.png) · [worklist](docs/images/worklist.png) ·
+[policy with its source sentences](docs/images/policy.png) · [phone](docs/images/phone.png).
+Screens show synthetic cases reviewed by a local Qwen3-4B model.
 
 ## What it guarantees, in code, not in a prompt
 
@@ -107,7 +108,8 @@ Requirements: Docker. Nothing needs an API key.
 docker compose up --build --wait
 ```
 
-Open http://localhost:8080 and sign in with one of the demo roles shown on the sign-in page. The
+Open http://localhost:8080. Visitors without a session land on a short tour of how a review
+works, with a live example; "Open the demo" offers one-click sign-ins for each role. The
 demo loads the four policies and the 48 synthetic cases, and the worker reviews them with the
 keyless baseline (retrieval only; it highlights evidence and never approves on its own).
 
@@ -156,7 +158,7 @@ indicium/cases      request model, FHIR intake, labelled dataset
 indicium/review     masking, injection scan, retrieval, providers, verification, rules, worker
 indicium/api        FastAPI routes, auth and permissions
 indicium/evals      evaluation harness
-web/                Next.js nurse and physician screens
+web/                Next.js welcome page, nurse and physician screens (design: web/DESIGN.md)
 data/               policies (from CMS) and synthetic cases
 reports/evals       saved evaluation runs
 ```

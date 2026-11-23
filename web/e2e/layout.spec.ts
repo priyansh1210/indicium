@@ -7,6 +7,8 @@ async function fits(page: Page) {
 }
 
 test("main screens fit the viewport", async ({ page }) => {
+  await page.goto("/welcome");
+  await fits(page);
   await page.goto("/login");
   await fits(page);
   await page.getByRole("button", { name: /Riley Viewer/ }).click();

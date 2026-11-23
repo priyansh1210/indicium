@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { Icon } from "@/components/icons";
 import { NavLink } from "@/components/nav-link";
+import { Wordmark } from "@/components/wordmark";
 import { api } from "@/lib/api";
 import type { Principal } from "@/lib/types";
 
@@ -12,11 +11,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-dvh">
       <header className="border-b border-rule bg-paper">
-        <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-6 px-4 sm:px-6">
-          <Link href="/" className="font-serif text-lg font-semibold">
-            Indicium
-          </Link>
-          <nav aria-label="Main" className="flex items-center gap-1">
+        <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 sm:gap-8 sm:px-6">
+          <Wordmark />
+          <nav aria-label="Main" className="flex items-center gap-1 sm:gap-4">
             <NavLink href="/" icon="worklist">
               Worklist
             </NavLink>
@@ -24,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               Policies
             </NavLink>
           </nav>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-4">
             <p className="hidden text-right text-[13px] leading-tight sm:block">
               <span className="block font-semibold">{me.name}</span>
               <span className="text-ink-2 capitalize">{me.role}</span>
@@ -38,7 +35,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6">{children}</main>
+      <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

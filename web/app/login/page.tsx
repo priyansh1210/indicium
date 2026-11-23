@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
+import { Wordmark } from "@/components/wordmark";
 import { API_URL } from "@/lib/api";
 
 import { SignInForm } from "./form";
@@ -22,20 +24,23 @@ export default async function LoginPage({
 }) {
   const [{ next }, users] = await Promise.all([searchParams, demoUsers()]);
   return (
-    <main className="grid min-h-dvh place-items-center px-4 py-10">
-      <div className="w-full max-w-md">
-        <p className="font-serif text-xl font-semibold">Indicium</p>
-        <div className="sheet mt-4 p-6 sm:p-8">
-          <h1 className="title">Sign in to review</h1>
-          <p className="mt-2 text-ink-2">
-            Prior-authorization requests, checked against coverage policy, with the evidence for
-            every item.
-          </p>
-          <div className="mt-6">
-            <SignInForm next={next ?? "/"} demoUsers={users} />
-          </div>
+    <div className="flex min-h-dvh flex-col">
+      <header className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between px-4 sm:px-8">
+        <Wordmark href="/welcome" />
+        <Link href="/welcome" className="text-sm font-semibold text-ink-2 hover:text-ink">
+          What is Indicium?
+        </Link>
+      </header>
+      <main className="mx-auto w-full max-w-[1120px] flex-1 px-4 pt-8 pb-16 sm:px-8 lg:pt-16">
+        <h1 className="display rise text-[clamp(40px,5.5vw,68px)]">Sign in to review</h1>
+        <p className="rise mt-4 max-w-[56ch] text-[17px] leading-relaxed text-ink-2" style={{ "--i": 1 } as React.CSSProperties}>
+          Prior-authorization requests, checked against coverage policy, with the sentence in the
+          notes behind every item.
+        </p>
+        <div className="mt-10">
+          <SignInForm next={next ?? "/"} demoUsers={users} />
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

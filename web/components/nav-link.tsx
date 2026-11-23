@@ -20,12 +20,16 @@ export function NavLink({
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold ${
-        current ? "bg-accent-soft text-accent" : "text-ink-2 hover:bg-tint hover:text-ink"
-      }`}
+      className={`group flex h-9 items-center gap-2 px-2 text-sm font-semibold ${current ? "text-ink" : "text-ink-2 hover:text-ink"}`}
     >
       <Icon name={icon} />
-      {children}
+      {/* Hover previews the stroke in grey; only the current page wears the marker. */}
+      <span
+        className={`stroke stroke-under ${current ? "" : "[--stroke:var(--color-rule)] group-hover:[background-size:100%_38%]"}`}
+        data-on={current}
+      >
+        {children}
+      </span>
     </Link>
   );
 }
