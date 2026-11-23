@@ -11,6 +11,13 @@ denies: a nurse decides, and only a physician reviewer can deny.
 All data is synthetic or public. Policies come from the public CMS Medicare Coverage Database;
 patients and notes are synthetic. No real patient data is used anywhere.
 
+![A knee replacement request: each checklist item quotes its evidence, highlighted in the X-ray report](docs/images/case-review.png)
+
+![A request whose note carries instructions aimed at an automated reviewer: the case goes to a person and the line is underlined](docs/images/flagged-case.png)
+
+More: [worklist](docs/images/worklist.png) · [policy with its source sentences](docs/images/policy.png) ·
+[phone](docs/images/phone.png). Screens show synthetic cases reviewed by a local Qwen3-4B model.
+
 ## What it guarantees, in code, not in a prompt
 
 - **No invented evidence.** Every quote a model returns is located word for word in its note
@@ -138,6 +145,8 @@ browser tests against it.
   hour) read from the database so every replica agrees; OpenTelemetry traces per request and per
   review step, exported to Langfuse or any OTLP backend when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
 - Settings are environment variables (`INDICIUM_*`), validated at start.
+- Deploys to Azure Container Apps + Azure Database for PostgreSQL from one Bicep template:
+  [docs/deploy.md](docs/deploy.md).
 
 ## Project layout
 

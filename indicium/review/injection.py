@@ -34,9 +34,19 @@ class Hit:
 
 
 def scan(documents: dict[str, str]) -> list[Hit]:
-    """Every suspicious span, by document, in reading order."""
+    """Every line with suspicious text, by document, in reading order. A reviewer reads the whole
+    line once, not each matched fragment of it."""
     hits = []
     for doc_id, text in documents.items():
-        spans = sorted({m.span() for pattern in _DETECT for m in pattern.finditer(text)})
-        hits += [Hit(doc_id, s, e, text[s:e]) for s, e in spans]
+        lines: set[tuple[int, int]] = set()
+        for pattern in _DETECT:
+            for match in pattern.finditer(text):
+                start = text.rfind("\n", 0, match.start()) + 1
+                end = text.find("\n", match.end())
+                end = len(text) if end < 0 else end
+                line = text[start:end]
+                start += len(line) - len(line.lstrip())  # the span covers the text, not padding
+                end -= len(line) - len(line.rstrip())
+                lines.add((start, end))
+        hits += [Hit(doc_id, s, e, text[s:e]) for s, e in sorted(lines)]
     return hits
