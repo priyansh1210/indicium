@@ -30,12 +30,21 @@ class Settings(BaseSettings):
     model_timeout_seconds: float = Field(90, gt=0)
     model_max_retries: int = Field(3, ge=0, le=10)
     prompt_version: str = Field("extract-v1", pattern=r"^[a-z0-9-]+$")
+    # A would-be approval gets a second model call looking for reasons against it. Off only to
+    # measure what it adds (evals); a provider without the check never approves unchecked in CI.
+    approval_check: bool = True
+    # approval-check-v1 refers on any verified passage it reports (strict); v2 also asks the
+    # model whether each passage argues against approval and keeps only those (fewer referrals).
+    approval_check_version: str = Field("approval-check-v2", pattern=r"^approval-check-v[0-9]+$")
     # Below this, a finding is not trusted and the case goes to a person.
     min_confidence: float = Field(0.6, ge=0, le=1)
     # Notes up to this size go to the model whole; longer records are cut to relevant excerpts.
     context_char_budget: int = Field(60_000, ge=2_000)
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     embedding_cache: str = ".cache/fastembed"
+
+    # Logs as JSON lines (for a log pipeline); false gives plain text for local reading.
+    log_json: bool = True
 
     # API
     session_hours: int = Field(12, ge=1, le=24 * 30)
@@ -47,13 +56,16 @@ class Settings(BaseSettings):
 
     # Worker
     worker_poll_seconds: float = Field(1.0, gt=0)
-    worker_lease_seconds: int = Field(900, ge=30)
+    worker_lease_seconds: int = Field(1800, ge=30)
     worker_max_attempts: int = Field(3, ge=1)
 
     @model_validator(mode="after")
     def _lease_outlasts_the_model(self) -> "Settings":
-        # Worst case for one review: every retry times out, then the repair turn does it again.
+        # Worst case for one review: every retry times out, then the repair turn does it again,
+        # for the extraction and (when on) the approval check.
         worst = self.model_timeout_seconds * (self.model_max_retries + 1) * 2
+        if self.approval_check:  # a would-be approval makes a second call of the same size
+            worst *= 2
         if self.worker_lease_seconds <= worst:
             raise ValueError(
                 f"worker_lease_seconds ({self.worker_lease_seconds}) must exceed the longest model "

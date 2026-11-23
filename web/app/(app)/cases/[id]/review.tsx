@@ -11,6 +11,11 @@ import type { CaseDetail, ChecklistNode, CriterionItem, Principal } from "@/lib/
 import { correctItem, decide, reviewAgain, type FormState } from "./actions";
 
 const EDITABLE = new Set(["awaiting_nurse", "referred"]);
+const CONCERN_LABEL = {
+  exclusion: "An exclusion may apply",
+  scope: "About a different site or service",
+  contradiction: "Contradicts a met item",
+};
 
 export function CaseReview({ detail, me }: { detail: CaseDetail; me: Principal }) {
   const { review, checklist, documents } = detail;
@@ -20,14 +25,27 @@ export function CaseReview({ detail, me }: { detail: CaseDetail; me: Principal }
   const docPanel = useRef<HTMLDivElement>(null);
 
   const items = useMemo(() => (checklist ? flatten(checklist) : []), [checklist]);
+  // Text a person must read: instructions aimed at a reviewer, and the approval check's concerns.
+  const passages = useMemo(
+    () => [
+      ...(review?.injection_hits ?? []).map((h) => ({ ...h, label: "Addressed to an automated reviewer" })),
+      ...(review?.concerns ?? []).map((c) => ({
+        doc_id: c.doc_id,
+        start: c.start,
+        end: c.end,
+        text: c.quote,
+        label: CONCERN_LABEL[c.kind],
+      })),
+    ],
+    [review],
+  );
   const marksByDoc = useMemo(() => {
     const byDoc: Record<string, Mark[]> = {};
     for (const item of items)
       for (const e of item.evidence) (byDoc[e.doc_id] ??= []).push({ ...e, criterion: item.id });
-    for (const hit of review?.injection_hits ?? [])
-      (byDoc[hit.doc_id] ??= []).push({ start: hit.start, end: hit.end, suspicious: true });
+    for (const p of passages) (byDoc[p.doc_id] ??= []).push({ start: p.start, end: p.end, suspicious: true });
     return byDoc;
-  }, [items, review]);
+  }, [items, passages]);
 
   function select(criterionId: string) {
     setActive(criterionId);
@@ -68,14 +86,15 @@ export function CaseReview({ detail, me }: { detail: CaseDetail; me: Principal }
               <RecommendationText value={review.model_recommendation} />.
             </p>
           )}
-          {review.injection_hits.length > 0 && (
+          {passages.length > 0 && (
             <div className="mt-3 text-sm">
-              <p className="font-semibold">Suspicious text (shown underlined in the document):</p>
+              <p className="font-semibold">Passages to read before deciding (underlined in the document):</p>
               <ul className="mt-1 space-y-1">
-                {review.injection_hits.map((hit) => (
-                  <li key={`${hit.doc_id}-${hit.start}`}>
-                    <button type="button" className="text-left text-accent hover:underline" onClick={() => setDocId(hit.doc_id)}>
-                      “{hit.text}” <span className="text-ink-2">in {hit.doc_id}</span>
+                {passages.map((p) => (
+                  <li key={`${p.doc_id}-${p.start}-${p.label}`}>
+                    <button type="button" className="text-left text-accent hover:underline" onClick={() => setDocId(p.doc_id)}>
+                      <span className="font-semibold text-unmet">{p.label}:</span> “{p.text}”{" "}
+                      <span className="text-ink-2">in {p.doc_id}</span>
                     </button>
                   </li>
                 ))}

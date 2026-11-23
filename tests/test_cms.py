@@ -1,8 +1,9 @@
 """The CMS importer against a fake Coverage API (CI never calls the real one)."""
 
 import httpx
+import pytest
 
-from indicium.policies.cms import API, CmsClient
+from indicium.policies.cms import API, CmsClient, CmsError
 
 LCD_HTML = "&lt;p&gt;Covered when &lt;strong&gt;four weeks&lt;/strong&gt; of care failed.&lt;/p&gt;"
 
@@ -67,3 +68,44 @@ def test_fetch_lcd_builds_a_policy_draft():
     assert draft["source_text"].endswith("Covered when four weeks of care failed.")
     tokens = [r for r in seen if r.url.path.endswith("license-agreement/")]
     assert len(tokens) == 1  # one token reused for every licensed call
+
+
+def test_rate_limits_and_server_errors_are_retried_and_a_stale_token_is_renewed():
+    replies = iter(
+        [
+            httpx.Response(200, json={"data": [{"Token": "old"}]}),  # first license
+            httpx.Response(429, headers={"Retry-After": "3"}),
+            httpx.Response(503),
+            httpx.Response(401),  # token expired early
+            httpx.Response(200, json={"data": [{"Token": "new"}]}),  # renewed license
+            httpx.Response(200, json={"data": [{"ok": 1}]}),
+        ]
+    )
+    seen, sleeps = [], []
+
+    def handle(request):
+        seen.append(request.headers.get("Authorization"))
+        return next(replies)
+
+    client = CmsClient(
+        httpx.Client(base_url=API, transport=httpx.MockTransport(handle)), sleep=sleeps.append
+    )
+    assert client._get("/data/lcd/", licensed=True) == [{"ok": 1}]
+    assert sleeps == [3.0, 2]
+    assert seen[-1] == "Bearer new"
+
+
+def test_a_client_error_is_not_retried():
+    calls = []
+
+    def handle(request):
+        calls.append(request)
+        return httpx.Response(404, text="nope")
+
+    client = CmsClient(
+        httpx.Client(base_url=API, transport=httpx.MockTransport(handle)), sleep=lambda s: None
+    )
+
+    with pytest.raises(CmsError, match="404"):
+        client._get("/reports/local-coverage-final-lcds/")
+    assert len(calls) == 1

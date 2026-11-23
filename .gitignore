@@ -25,7 +25,7 @@ uv.toml
 .tools/
 
 # Generated output
-reports/runs/
+# (eval runs in reports/evals are committed: every reported number traces to a file)
 
 # Assistant files stay local
 CLAUDE.md

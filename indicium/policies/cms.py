@@ -30,7 +30,11 @@ class CmsError(Exception):
 
 
 class CmsClient:
-    def __init__(self, client: httpx.Client | None = None):
+    RETRIES = 3
+    RETRY_STATUS = {429, 500, 502, 503, 504}
+
+    def __init__(self, client: httpx.Client | None = None, sleep=time.sleep):
+        self.sleep = sleep
         self.http = client or httpx.Client(
             base_url=API, timeout=30, transport=httpx.HTTPTransport(retries=3)
         )
@@ -40,17 +44,31 @@ class CmsClient:
         """All rows of one endpoint, following the API's next_token paging."""
         rows: list[dict] = []
         while True:
-            headers = {"Authorization": f"Bearer {self._license()}"} if licensed else {}
-            response = self.http.get(path, params=params, headers=headers)
-            if response.status_code >= 400:
-                raise CmsError(f"{path} answered {response.status_code}: {response.text[:200]}")
-            body = response.json()
+            body = self._request(path, params, licensed)
             rows += body.get("data") or []
             if not (token := (body.get("meta") or {}).get("next_token")):
                 return rows
             if token == params.get("next_token"):
                 raise CmsError(f"{path} returned the same page token twice")
             params["next_token"] = token
+
+    def _request(self, path: str, params: dict, licensed: bool) -> dict:
+        """One page. Rate limits and server errors are retried with backoff; a rejected license
+        token (it can expire before our renewal margin) is renewed once."""
+        renewed = False
+        for attempt in range(self.RETRIES + 1):
+            headers = {"Authorization": f"Bearer {self._license()}"} if licensed else {}
+            response = self.http.get(path, params=params, headers=headers)
+            if response.status_code < 400:
+                return response.json()
+            if response.status_code == 401 and licensed and not renewed:
+                self._token, renewed = None, True
+                continue
+            if response.status_code not in self.RETRY_STATUS or attempt == self.RETRIES:
+                raise CmsError(f"{path} answered {response.status_code}: {response.text[:200]}")
+            wait = response.headers.get("retry-after", "")
+            self.sleep(min(float(wait), 60) if wait.isdigit() else 2**attempt)
+        raise CmsError(f"{path} kept refusing the license token")
 
     def _license(self) -> str:
         if self._token and self._token[1] > time.monotonic():

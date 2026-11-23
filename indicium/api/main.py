@@ -2,11 +2,13 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, generate_latest
 from psycopg import errors
 from psycopg_pool import PoolTimeout
 
+from indicium import observability
 from indicium.api import auth, cases, policies
 from indicium.config import settings
 from indicium.db import make_pool
@@ -14,12 +16,16 @@ from indicium.db import make_pool
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    observability.configure("indicium-api", settings().log_json)
     pool = make_pool()
     pool.open()
     app.state.pool = pool
+    collector = observability.StateCollector(pool)
+    REGISTRY.register(collector)
     try:
         yield
     finally:
+        REGISTRY.unregister(collector)
         pool.close()
 
 
@@ -64,6 +70,7 @@ async def _too_large(send) -> None:
 
 app = FastAPI(title="Indicium", lifespan=lifespan)
 app.add_middleware(BodyLimit, max_bytes=settings().max_body_bytes)
+app.add_middleware(observability.RequestContext)  # outermost: every response gets a request id
 app.include_router(auth.router)
 app.include_router(cases.router)
 app.include_router(policies.router)
@@ -89,6 +96,12 @@ async def refused_by_database(_request: Request, exc: Exception) -> JSONResponse
 def health() -> dict:
     """Liveness: the process is up. It does not touch the database."""
     return {"status": "ok"}
+
+
+@app.get("/metrics", tags=["ops"], include_in_schema=False)
+def metrics() -> Response:
+    """Prometheus metrics. The proxy does not publish this path: scrape it privately."""
+    return Response(generate_latest(REGISTRY), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/ready", tags=["ops"])

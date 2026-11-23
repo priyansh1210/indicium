@@ -23,7 +23,7 @@ const FLAG_SHORT: Record<string, string> = {
   diagnosis_not_covered: "Diagnosis not covered",
   conflicting_evidence: "Notes disagree",
   low_confidence: "Low confidence",
-  extraction_failed: "Unreadable notes",
+  approval_concern: "Reason against approval",
 };
 
 export default async function Worklist({

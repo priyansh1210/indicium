@@ -1,0 +1,34 @@
+# The only public entry point. Locally it serves http://localhost:8080; set SITE_ADDRESS to a
+# domain name in production and Caddy obtains and renews a TLS certificate by itself.
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		-Server
+	}
+
+	# Operations and schema endpoints stay on the private network. A handle of its own, first:
+	# handle blocks are tried in order and win over a bare respond.
+	@private path /metrics /docs /docs/* /redoc /openapi.json /api/metrics /api/docs* /api/redoc /api/openapi.json
+	handle @private {
+		respond 404
+	}
+
+	# Machine clients (an EHR or a provider portal) submit requests with an API key.
+	# shortcut: no per-key rate limit at the edge; add one (a rate-limit plugin or the API) when
+	# outside clients send volume.
+	handle_path /api/* {
+		request_body {
+			max_size 5MB
+		}
+		reverse_proxy api:8000
+	}
+
+	# People use the web app; it calls the API itself on the private network.
+	handle {
+		reverse_proxy web:3000
+	}
+}

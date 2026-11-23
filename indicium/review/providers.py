@@ -26,6 +26,8 @@ from indicium.policies.model import Criterion, Policy, criteria_of
 from indicium.review.retrieval import Embedder, Ranker, embedder, excerpts
 
 PROMPTS = Path(__file__).parent / "prompts"
+NEWLINE = chr(10)
+USER_MARK = "=== USER ===" + NEWLINE
 
 
 class Quote(BaseModel):
@@ -46,6 +48,53 @@ class Extraction(BaseModel):
     suspected_instructions: bool = False
 
 
+class Concern(BaseModel):
+    kind: Literal["exclusion", "scope", "contradiction"]
+    criterion_id: str = ""
+    doc_id: str
+    quote: str
+    explanation: str = ""
+    # The checker's own verdict, given after it explains the passage: small models also report
+    # passages that support approval, and only those against it may stop one.
+    against_approval: bool = True
+
+
+class Concerns(BaseModel):
+    concerns: list[Concern]
+
+
+CONCERNS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "concerns": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string", "enum": ["exclusion", "scope", "contradiction"]},
+                    "criterion_id": {"type": "string"},
+                    "doc_id": {"type": "string"},
+                    "quote": {"type": "string"},
+                    "explanation": {"type": "string"},
+                    "against_approval": {"type": "boolean"},
+                },
+                "required": [
+                    "kind",
+                    "criterion_id",
+                    "doc_id",
+                    "quote",
+                    "explanation",
+                    "against_approval",
+                ],
+                "additionalProperties": False,
+            },
+        }
+    },
+    "required": ["concerns"],
+    "additionalProperties": False,
+}
+
+
 # Written out by hand (no $refs) so that every OpenAI-compatible server accepts it.
 EXTRACTION_SCHEMA = {
     "type": "object",
@@ -54,12 +103,10 @@ EXTRACTION_SCHEMA = {
             "type": "array",
             "items": {
                 "type": "object",
+                # Order matters: constrained decoding writes fields in this order, so the model
+                # quotes, then reasons, then decides, instead of deciding first.
                 "properties": {
                     "criterion_id": {"type": "string"},
-                    "finding": {
-                        "type": "string",
-                        "enum": ["documented", "contradicted", "absent", "conflicting"],
-                    },
                     "evidence": {
                         "type": "array",
                         "items": {
@@ -72,10 +119,14 @@ EXTRACTION_SCHEMA = {
                             "additionalProperties": False,
                         },
                     },
-                    "confidence": {"type": "number"},
                     "rationale": {"type": "string"},
+                    "finding": {
+                        "type": "string",
+                        "enum": ["documented", "contradicted", "absent", "conflicting"],
+                    },
+                    "confidence": {"type": "number"},
                 },
-                "required": ["criterion_id", "finding", "evidence", "confidence", "rationale"],
+                "required": ["criterion_id", "evidence", "rationale", "finding", "confidence"],
                 "additionalProperties": False,
             },
         },
@@ -111,6 +162,14 @@ class ProviderResult:
     tokens_in: int = 0
     tokens_out: int = 0
     detail: dict = field(default_factory=dict)
+
+
+@dataclass
+class CheckResult:
+    concerns: list[Concern]
+    tokens_in: int
+    tokens_out: int
+    version: str  # which approval-check prompt produced these concerns
 
 
 class Provider(Protocol):
@@ -179,32 +238,60 @@ class OpenAIProvider:
         )
         self.model, self.retries, self.sleep = s.openai_model, s.model_max_retries, sleep
         self.prompt_version = s.prompt_version
-        system, _, user = (
-            (PROMPTS / f"{s.prompt_version}.md").read_text("utf-8").partition("=== USER ===\n")
-        )
-        if not user:
-            raise ValueError(f"prompt {s.prompt_version} has no '=== USER ===' section")
-        self.system, self.user = system.strip(), Template(user)
+        self.system, self.user = _prompt(s.prompt_version)
+        self.check_version = s.approval_check_version
+        self.check_system, self.check_user = _prompt(s.approval_check_version)
         self.budget = s.context_char_budget
 
     def extract(self, task: ExtractionTask) -> ProviderResult:
-        messages = [
-            {"role": "system", "content": self.system},
-            {"role": "user", "content": self._user_message(task)},
-        ]
+        extraction, tokens_in, tokens_out, repaired = self._ask(
+            self.system, self._user_message(task), Extraction, EXTRACTION_SCHEMA, "findings"
+        )
+        return ProviderResult(
+            extraction, "openai", self.model, self.prompt_version, tokens_in, tokens_out,
+            {"repaired": repaired},
+        )  # fmt: skip
+
+    def check_approval(self, task: ExtractionTask, met: list[str]) -> CheckResult:
+        criteria = list(criteria_of(task.policy.criteria))
+        texts = excerpts(
+            {d.doc_id: d.text for d in task.documents},
+            [query_for(c) for c in criteria],
+            self.budget,
+        )
+        blocks = {
+            "exclusions": [_criterion_block(c) for c in criteria if c.kind == "exclusion"],
+            "met": [_criterion_block(c) for c in criteria if c.id in met],
+            "documents": [
+                _document_block(d, texts[d.doc_id]) for d in task.documents if d.doc_id in texts
+            ],
+        }
+        user = self.check_user.substitute(
+            service=_service(task),
+            policy_title=task.policy.title,
+            exclusions=NEWLINE.join(blocks["exclusions"]) or "(none)",
+            met=NEWLINE.join(blocks["met"]) or "(none)",
+            documents=(NEWLINE * 2).join(blocks["documents"]),
+        )
+        concerns, tokens_in, tokens_out, _ = self._ask(
+            self.check_system, user, Concerns, CONCERNS_SCHEMA, "concerns"
+        )
+        return CheckResult(concerns.concerns, tokens_in, tokens_out, self.check_version)
+
+    def _ask(self, system: str, user: str, model, schema: dict, name: str):
+        """One schema-constrained question, with one repair turn for output that does not parse.
+        Returns (parsed, tokens_in, tokens_out, repaired)."""
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
         tokens_in = tokens_out = 0
-        for attempt in range(2):  # one repair turn for output that does not parse
-            body = self._post(messages)
+        for attempt in range(2):
+            body = self._post(messages, schema, name)
             usage = body.get("usage") or {}
             tokens_in += usage.get("prompt_tokens") or 0
             tokens_out += usage.get("completion_tokens") or 0
             content = ((body.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
             try:
-                extraction = Extraction.model_validate_json(_json_object(content))
-                return ProviderResult(
-                    extraction, "openai", self.model, self.prompt_version, tokens_in, tokens_out,
-                    {"repaired": attempt > 0},
-                )  # fmt: skip
+                parsed = model.model_validate_json(_json_object(content))
+                return parsed, tokens_in, tokens_out, attempt > 0
             except (ValidationError, ValueError) as error:
                 messages += [
                     {"role": "assistant", "content": content[:20_000]},
@@ -221,7 +308,7 @@ class OpenAIProvider:
             self.budget,
         )
         return self.user.substitute(
-            service=task.service,
+            service=_service(task),
             policy_title=task.policy.title,
             criteria="\n".join(_criterion_block(c) for c in criteria),
             documents="\n\n".join(
@@ -229,14 +316,14 @@ class OpenAIProvider:
             ),
         )
 
-    def _post(self, messages: list[dict]) -> dict:
+    def _post(self, messages: list[dict], schema: dict, name: str) -> dict:
         payload = {
             "model": self.model,
             "messages": messages,
             "temperature": 0,
             "response_format": {
                 "type": "json_schema",
-                "json_schema": {"name": "findings", "schema": EXTRACTION_SCHEMA, "strict": True},
+                "json_schema": {"name": name, "schema": schema, "strict": True},
             },
         }
         for attempt in range(self.retries + 1):
@@ -255,6 +342,21 @@ class OpenAIProvider:
                 )
             self.sleep(_backoff(attempt, response.headers.get("retry-after")))
         raise AssertionError("unreachable")
+
+
+def _service(task: ExtractionTask) -> str:
+    """The code and what it means ("72148, MRI lumbar spine without contrast"): a bare code does
+    not tell a model which body region the request is about."""
+    described = {p.code: p.description for p in task.policy.procedure_codes}
+    description = described.get(task.service, "")
+    return f"{task.service}, {description.lower()}" if description else task.service
+
+
+def _prompt(version: str) -> tuple[str, Template]:
+    system, _, user = (PROMPTS / f"{version}.md").read_text("utf-8").partition(USER_MARK)
+    if not user:
+        raise ValueError(f"prompt {version} has no user section")
+    return system.strip(), Template(user)
 
 
 def _backoff(attempt: int, retry_after: str | None) -> float:

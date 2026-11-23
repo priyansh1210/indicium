@@ -36,9 +36,22 @@ def _intake(db: Connection, request: CaseRequest, principal: Principal, response
     if created:  # queued in the same transaction, so no case is ever left unreviewed
         enqueue(db, case_id, principal.actor)
     else:
+        _check_owner(db, case_id, principal, status=409)
         response.status_code = 200
     status = db.execute("select status from app.cases where case_id = %s", (case_id,)).fetchone()
     return Submitted(case_id=case_id, created=created, status=status["status"])
+
+
+def _check_owner(db: Connection, case_id: int, principal: Principal, status: int) -> None:
+    """An API key (one submitting system) may act only on the cases it submitted. Anything else
+    answers as if the case did not exist (404) or the id were taken (409): no probing of ids."""
+    if principal.kind != "api_key":
+        return
+    owner = db.execute("select created_by from app.cases where case_id = %s", (case_id,)).fetchone()
+    if owner is None or owner["created_by"] != principal.actor:
+        if status == 404:
+            raise HTTPException(404, "No such case")
+        raise HTTPException(409, "That external id is already used by another submitter")
 
 
 @router.post("", status_code=201)
@@ -216,6 +229,7 @@ def detail(case_id: int, principal: Reader, db: Db) -> dict:
             "model_recommendation": run["recommendation"],
             "flags": run["flags"],
             "injection_hits": (run["detail"] or {}).get("injection_hits", []),
+            "concerns": (run["detail"] or {}).get("concerns", []),
             "provider": run["provider"],
             "model": run["model"],
             "prompt_version": run["prompt_version"],
@@ -373,6 +387,7 @@ def attach(case_id: int, body: DocumentsIn, principal: Submitter, db: Db) -> dic
     ).fetchone()
     if not case:
         raise HTTPException(404, "No such case")
+    _check_owner(db, case_id, principal, status=404)
     if case["status"] not in ("pended", "awaiting_nurse", "failed"):
         raise HTTPException(409, f"Documents cannot be added while the case is {case['status']}")
     try:

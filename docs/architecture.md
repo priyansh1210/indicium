@@ -19,7 +19,9 @@ patients and notes are generated. No real patient data is ever used.
    `physician` role.
 3. **Uncertainty goes to a person.** Low confidence, contradicting evidence, a suspected
    instruction hidden in a note, a missing policy or a failed model call all lead to
-   `refer_to_clinician` or `pend_for_info`, never to `meets_criteria`.
+   `refer_to_clinician` or `pend_for_info`, never to `meets_criteria`. A would-be approval also
+   passes an approval check that can only refer, never approve (evals showed the extraction
+   model under-reports exclusions; see docs/evals.md).
 4. **Everything is audited.** Every model run (provider, model, prompt version, policy version,
    input hash, output), every edit to a checklist and every decision is written to an
    append-only audit log in the same transaction as the change it records.
@@ -80,6 +82,10 @@ request + notes ──► intake (validate, hash, mask identifiers)
                decision rules ── evaluate the tree with three values (met / not met /
                     │            unknown) → recommendation + reasons
                     ▼
+               approval check ── only for a would-be approval: a second, narrow model call
+                    │            looks for exclusions, wrong body site or service, and
+                    │            contradictions; any verified quote sends it to a person
+                    ▼
                nurse review ── checklist with highlighted evidence; edit any item with a
                                reason; approve, pend, or refer to a physician
 ```
@@ -107,7 +113,7 @@ One interface, three implementations, chosen per run:
 | Embeddings | fastembed (ONNX, no PyTorch), model baked into the image |
 | Web | Next.js nurse and admin screens |
 | Proxy | Caddy, the only public entry point |
-| Tracing | OpenTelemetry spans per review step; Langfuse when configured |
+| Observability | JSON logs with request ids; Prometheus `/metrics` read from the database; OpenTelemetry spans per request and review step, exported over OTLP (Langfuse, Jaeger, Tempo) when configured |
 | Evals | labelled synthetic cases, criterion-level F1, unsafe approvals, grounding, latency, cost |
 | CI | GitHub Actions: lint, tests, evals on the baseline, Docker build, browser tests |
 | Deploy | Azure Container Apps + Azure Database for PostgreSQL |

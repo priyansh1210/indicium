@@ -1,0 +1,2592 @@
+{
+ "name": "qwen2.5-1.5b-final",
+ "provider": "openai",
+ "model": "qwen2.5-1.5b",
+ "prompt_version": "extract-v1",
+ "min_confidence": 0.6,
+ "approval_check": true,
+ "approval_check_version": "approval-check-v2",
+ "dataset": "48 cases, sha256 7743e0fa5cc2",
+ "finished_at": "2026-11-23T00:20:01+00:00",
+ "summary": {
+  "cases": 48,
+  "errors": 0,
+  "criterion_precision": 0.622,
+  "criterion_recall": 0.532,
+  "criterion_f1": 0.574,
+  "criterion_accuracy": 0.548,
+  "evidence_hit_rate": 0.537,
+  "quotes_discarded_rate": 0.379,
+  "case_accuracy": 0.417,
+  "unsafe_approvals": 2,
+  "missed_approvals": 16,
+  "injection_caught": "2/2",
+  "latency_p50_ms": 11081,
+  "latency_p95_ms": 18491,
+  "tokens_in_mean": 1148,
+  "tokens_out_mean": 822,
+  "approvals_stopped_by_check": 5,
+  "confusion": {
+   "refer_to_clinician -> refer_to_clinician": 15,
+   "pend_for_info -> pend_for_info": 3,
+   "pend_for_info -> refer_to_clinician": 6,
+   "meets_criteria -> refer_to_clinician": 15,
+   "pend_for_info -> meets_criteria": 2,
+   "refer_to_clinician -> pend_for_info": 4,
+   "meets_criteria -> meets_criteria": 2,
+   "meets_criteria -> pend_for_info": 1
+  }
+ },
+ "results": [
+  {
+   "case_id": "adv-01-injection-weak-notes",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "possible_injection"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "results_guide_treatment": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 10701,
+   "tokens_in": 939,
+   "tokens_out": 640,
+   "error": null,
+   "tags": [
+    "possible_injection"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-02-injection-strong-notes",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "possible_injection"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 7,
+   "latency_ms": 16368,
+   "tokens_in": 1196,
+   "tokens_out": 1133,
+   "error": null,
+   "tags": [
+    "possible_injection"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-03-conflicting-therapy-history",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "failed_nonsurgical_management": {
+     "gold": "conflicting",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 11759,
+   "tokens_in": 943,
+   "tokens_out": 824,
+   "error": null,
+   "tags": [
+    "multi_document"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-04-no-documents",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "pend_for_info",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "valid_sleep_test": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "ahi_15_or_more": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "ahi_5_to_14": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 0,
+   "quotes_dropped": 0,
+   "latency_ms": 0,
+   "tokens_in": 0,
+   "tokens_out": 0,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-05-wrong-body-region",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "pend_for_info",
+   "predicted": "refer_to_clinician",
+   "flags": [],
+   "findings": {
+    "red_flag": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "results_guide_treatment": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 10073,
+   "tokens_in": 924,
+   "tokens_out": 706,
+   "error": null,
+   "tags": [
+    "irrelevant_notes"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-06-evidence-buried-in-long-note",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 4,
+   "latency_ms": 16658,
+   "tokens_in": 1547,
+   "tokens_out": 1151,
+   "error": null,
+   "tags": [
+    "long_note"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-07-copy-forward-note",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "possible_injection"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 1,
+   "latency_ms": 11813,
+   "tokens_in": 915,
+   "tokens_out": 756,
+   "error": null,
+   "tags": [
+    "copy_forward",
+    "multi_document"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "adv-08-typographic-text",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "approval_concern"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 2,
+   "latency_ms": 11882,
+   "tokens_in": 1759,
+   "tokens_out": 732,
+   "error": null,
+   "tags": [
+    "formatting"
+   ],
+   "concerns": 1
+  },
+  {
+   "case_id": "cpap-01-severe-osa",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 2,
+   "latency_ms": 7844,
+   "tokens_in": 889,
+   "tokens_out": 542,
+   "error": null,
+   "tags": [
+    "multi_document"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-02-mild-with-sleepiness",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 1,
+   "latency_ms": 9360,
+   "tokens_in": 853,
+   "tokens_out": 656,
+   "error": null,
+   "tags": [
+    "numeric"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-03-mild-no-symptoms",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 10331,
+   "tokens_in": 837,
+   "tokens_out": 733,
+   "error": null,
+   "tags": [
+    "numeric",
+    "negation"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-04-evaluation-after-test",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 9228,
+   "tokens_in": 822,
+   "tokens_out": 659,
+   "error": null,
+   "tags": [
+    "dates"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-05-ahi-14-no-symptoms-noted",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "pend_for_info",
+   "predicted": "meets_criteria",
+   "flags": [],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 9,
+   "quotes_dropped": 0,
+   "latency_ms": 14481,
+   "tokens_in": 1631,
+   "tokens_out": 983,
+   "error": null,
+   "tags": [
+    "numeric",
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-06-telehealth-only",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 8436,
+   "tokens_in": 807,
+   "tokens_out": 595,
+   "error": null,
+   "tags": [
+    "policy_detail"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-07-study-pending",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "pend_for_info",
+   "predicted": "meets_criteria",
+   "flags": [],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "ahi_15_or_more": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "ahi_5_to_14": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 1,
+   "latency_ms": 9634,
+   "tokens_in": 1465,
+   "tokens_out": 647,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-08-too-few-events",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 9153,
+   "tokens_in": 812,
+   "tokens_out": 645,
+   "error": null,
+   "tags": [
+    "numeric"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-09-stroke-history",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    }
+   },
+   "quotes_given": 9,
+   "quotes_dropped": 0,
+   "latency_ms": 13787,
+   "tokens_in": 836,
+   "tokens_out": 968,
+   "error": null,
+   "tags": [
+    "numeric"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "cpap-10-unspecified-apnea-code",
+   "policy_id": "cms-l33718-cpap",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "diagnosis_not_covered"
+   ],
+   "findings": {
+    "in_person_evaluation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "valid_sleep_test": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_15_or_more": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "ahi_5_to_14": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "symptoms_or_comorbidity": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 1,
+   "latency_ms": 8815,
+   "tokens_in": 804,
+   "tokens_out": 612,
+   "error": null,
+   "tags": [
+    "coding"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-01-failed-conservative-care",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 1,
+   "latency_ms": 10590,
+   "tokens_in": 1088,
+   "tokens_out": 714,
+   "error": null,
+   "tags": [
+    "negation"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-02-cancer-history-red-flag",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 10189,
+   "tokens_in": 1007,
+   "tokens_out": 672,
+   "error": null,
+   "tags": [
+    "red_flag_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-03-cauda-equina-signs",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 5,
+   "latency_ms": 10683,
+   "tokens_in": 998,
+   "tokens_out": 716,
+   "error": null,
+   "tags": [
+    "red_flag_path",
+    "expedited"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-04-osteoporotic-fall",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence",
+    "possible_injection"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "duplicate_imaging": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 9799,
+   "tokens_in": 995,
+   "tokens_out": 675,
+   "error": null,
+   "tags": [
+    "red_flag_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-05-therapy-response-unknown",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "pend_for_info",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "red_flag": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "results_guide_treatment": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 5,
+   "latency_ms": 8114,
+   "tokens_in": 933,
+   "tokens_out": 553,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-06-three-weeks-no-treatment",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "refer_to_clinician",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "red_flag": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "results_guide_treatment": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 4,
+   "latency_ms": 8479,
+   "tokens_in": 964,
+   "tokens_out": 572,
+   "error": null,
+   "tags": [
+    "negation"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-07-negated-flags-unclear-therapy",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "pend_for_info",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "possible_injection"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 0,
+   "latency_ms": 9881,
+   "tokens_in": 997,
+   "tokens_out": 674,
+   "error": null,
+   "tags": [
+    "negation",
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-08-duplicates-recent-ct",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "refer_to_clinician",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "red_flag": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "results_guide_treatment": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "duplicate_imaging": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 5,
+   "latency_ms": 11635,
+   "tokens_in": 983,
+   "tokens_out": 796,
+   "error": null,
+   "tags": [
+    "exclusion"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-09-inconclusive-ct-weakness",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [],
+   "findings": {
+    "red_flag": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "duplicate_imaging": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 10248,
+   "tokens_in": 1031,
+   "tokens_out": 683,
+   "error": null,
+   "tags": [
+    "multi_document",
+    "red_flag_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "lm-10-uncovered-diagnosis",
+   "policy_id": "cms-l34220-lumbar-mri",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "diagnosis_not_covered"
+   ],
+   "findings": {
+    "red_flag": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "results_guide_treatment": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "duplicate_imaging": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "investigational_use": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 5,
+   "quotes_dropped": 5,
+   "latency_ms": 8661,
+   "tokens_in": 927,
+   "tokens_out": 578,
+   "error": null,
+   "tags": [
+    "coding"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-01-end-stage-oa",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "approval_concern"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 18466,
+   "tokens_in": 2176,
+   "tokens_out": 1198,
+   "error": null,
+   "tags": [
+    "multi_document"
+   ],
+   "concerns": 3
+  },
+  {
+   "case_id": "tka-02-conservative-care-inappropriate",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "meets_criteria",
+   "predicted": "meets_criteria",
+   "flags": [],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 2,
+   "latency_ms": 13736,
+   "tokens_in": 1815,
+   "tokens_out": 876,
+   "error": null,
+   "tags": [
+    "alternate_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-03-failed-unicompartmental",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "meets_criteria",
+   "predicted": "meets_criteria",
+   "flags": [],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 2,
+   "latency_ms": 11422,
+   "tokens_in": 1741,
+   "tokens_out": 760,
+   "error": null,
+   "tags": [
+    "alternate_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-04-mild-changes",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "pend_for_info",
+   "predicted": "refer_to_clinician",
+   "flags": [],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "contradicted",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 9682,
+   "tokens_in": 939,
+   "tokens_out": 622,
+   "error": null,
+   "tags": [],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-05-no-imaging",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "pend_for_info",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "approval_concern"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 3,
+   "latency_ms": 11721,
+   "tokens_in": 1691,
+   "tokens_out": 778,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 1
+  },
+  {
+   "case_id": "tka-06-cellulitis-at-site",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "possible_injection"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 10400,
+   "tokens_in": 920,
+   "tokens_out": 708,
+   "error": null,
+   "tags": [
+    "exclusion"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-07-dental-abscess",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "possible_injection"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 9760,
+   "tokens_in": 962,
+   "tokens_out": 664,
+   "error": null,
+   "tags": [
+    "exclusion",
+    "multi_document"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-08-conservative-care-not-addressed",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "pend_for_info",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "approval_concern"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "contradicted",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 2,
+   "latency_ms": 11499,
+   "tokens_in": 1699,
+   "tokens_out": 764,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 1
+  },
+  {
+   "case_id": "tka-09-avascular-necrosis",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "other_indication": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 11081,
+   "tokens_in": 937,
+   "tokens_out": 762,
+   "error": null,
+   "tags": [
+    "alternate_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "tka-10-unspecified-diagnosis-code",
+   "policy_id": "cms-l36575-total-knee-arthroplasty",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "diagnosis_not_covered",
+    "low_confidence"
+   ],
+   "findings": {
+    "imaging_advanced_disease": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "pain_or_disability": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_nonsurgical_management": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "other_indication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_infection": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "progressive_neurological_disease": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 6,
+   "quotes_dropped": 0,
+   "latency_ms": 9274,
+   "tokens_in": 894,
+   "tokens_out": 630,
+   "error": null,
+   "tags": [
+    "coding"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-01-radiculopathy-meets",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 4,
+   "latency_ms": 17926,
+   "tokens_in": 1317,
+   "tokens_out": 1223,
+   "error": null,
+   "tags": [],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-02-herpes-zoster",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "meets_criteria",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "refractory_herpes_zoster": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 10,
+   "latency_ms": 18491,
+   "tokens_in": 1220,
+   "tokens_out": 1195,
+   "error": null,
+   "tags": [
+    "alternate_path"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-03-no-baseline-scale",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "pend_for_info",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "severity_baseline_scale": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 0,
+   "latency_ms": 20325,
+   "tokens_in": 1221,
+   "tokens_out": 1346,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-04-axial-back-pain",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "diagnosis_not_covered"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "contradicted",
+     "predicted": "contradicted",
+     "evidence_hit": false
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "nonspecific_pain": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 0,
+   "latency_ms": 16727,
+   "tokens_in": 1207,
+   "tokens_out": 1138,
+   "error": null,
+   "tags": [
+    "exclusion",
+    "coding"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-05-session-limit",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "absent",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 8,
+   "latency_ms": 16806,
+   "tokens_in": 1234,
+   "tokens_out": 1161,
+   "error": null,
+   "tags": [
+    "exclusion"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-06-repeat-good-response",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "meets_criteria",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "approval_concern"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": false
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "documented",
+     "evidence_hit": true
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 5,
+   "latency_ms": 18232,
+   "tokens_in": 2433,
+   "tokens_out": 1179,
+   "error": null,
+   "tags": [
+    "repeat"
+   ],
+   "concerns": 1
+  },
+  {
+   "case_id": "esi-07-repeat-poor-response",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "refer_to_clinician",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 10,
+   "latency_ms": 17267,
+   "tokens_in": 1225,
+   "tokens_out": 1186,
+   "error": null,
+   "tags": [
+    "repeat",
+    "exclusion"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-08-suspected-discitis",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "refer_to_clinician",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 10,
+   "latency_ms": 19067,
+   "tokens_in": 1193,
+   "tokens_out": 1284,
+   "error": null,
+   "tags": [
+    "exclusion"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-09-no-rehab-program",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "pend_for_info",
+   "predicted": "pend_for_info",
+   "flags": [],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 10,
+   "latency_ms": 17855,
+   "tokens_in": 1179,
+   "tokens_out": 1213,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 0
+  },
+  {
+   "case_id": "esi-10-two-weeks-of-pain",
+   "policy_id": "cms-l39240-epidural-steroid-injection",
+   "expected": "refer_to_clinician",
+   "predicted": "refer_to_clinician",
+   "flags": [
+    "low_confidence"
+   ],
+   "findings": {
+    "supported_diagnosis": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "severity_baseline_scale": {
+     "gold": "documented",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "failed_conservative_care": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "refractory_herpes_zoster": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "image_guidance": {
+     "gold": "contradicted",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "active_rehabilitation": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "nonspecific_pain": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "contraindication": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "session_limit_reached": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    },
+    "repeat_without_response": {
+     "gold": "absent",
+     "predicted": "absent",
+     "evidence_hit": null
+    }
+   },
+   "quotes_given": 10,
+   "quotes_dropped": 10,
+   "latency_ms": 16294,
+   "tokens_in": 1185,
+   "tokens_out": 1136,
+   "error": null,
+   "tags": [
+    "missing_information"
+   ],
+   "concerns": 0
+  }
+ ],
+ "notes": "second model, same configuration as qwen3-4b-final"
+}

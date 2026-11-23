@@ -20,7 +20,7 @@ REFER_FLAGS = {
     "possible_injection": "A note contains text that reads like instructions to the reviewer.",
     "conflicting_evidence": "The notes contradict each other on a criterion.",
     "low_confidence": "The extraction was not confident about at least one criterion.",
-    "extraction_failed": "The notes could not be read automatically.",
+    "approval_concern": "A second check found a passage that argues against approval.",
 }
 
 

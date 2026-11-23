@@ -10,12 +10,24 @@ import time
 from dataclasses import dataclass, field
 
 from indicium.cases.model import CaseRequest
+from indicium.observability import tracer
 from indicium.policies.model import Policy, criteria_of
 from indicium.review import injection
 from indicium.review.privacy import mask
-from indicium.review.providers import Document, ExtractionTask, Provider, ProviderResult
+from indicium.review.providers import (
+    Document,
+    ExtractionTask,
+    Provider,
+    ProviderResult,
+)
 from indicium.review.rules import Decision, diagnosis_covered, recommend
-from indicium.review.verify import CheckedFinding, MaskedDocument, statuses, verify
+from indicium.review.verify import (
+    CheckedFinding,
+    MaskedDocument,
+    statuses,
+    verify,
+    verify_concerns,
+)
 
 
 @dataclass
@@ -25,12 +37,17 @@ class ReviewOutcome:
     flags: set[str]
     injection_hits: list[injection.Hit]
     result: ProviderResult | None  # None when there was nothing to read
+    concerns: list[dict]  # verified passages the approval check found against approval
     input_hash: str
     timings_ms: dict[str, int] = field(default_factory=dict)
 
 
 def review(
-    request: CaseRequest, policy: Policy, provider: Provider, min_confidence: float
+    request: CaseRequest,
+    policy: Policy,
+    provider: Provider,
+    min_confidence: float,
+    approval_check: bool = True,
 ) -> ReviewOutcome:
     timings: dict[str, int] = {}
     clock = time.perf_counter()
@@ -64,10 +81,22 @@ def review(
             CheckedFinding(c.id, "absent", 1.0, "No clinical documents were submitted.")
             for c in criteria_of(policy.criteria)
         ]  # the checklist still lists every criterion
-        return ReviewOutcome(decision, empty, flags, hits, None, input_hash, timings)
+        return ReviewOutcome(decision, empty, flags, hits, None, [], input_hash, timings)
 
     clock = time.perf_counter()
-    result = provider.extract(task)
+    with tracer.start_as_current_span(
+        "review.extract", attributes={"documents": len(task.documents)}
+    ) as span:
+        result = provider.extract(task)
+        span.set_attributes(
+            {
+                "provider": result.provider,
+                "model": result.model,
+                "prompt_version": result.prompt_version,
+                "tokens_in": result.tokens_in,
+                "tokens_out": result.tokens_out,
+            }
+        )
     timings["extract"] = _since(clock)
 
     clock = time.perf_counter()
@@ -75,7 +104,34 @@ def review(
     flags |= found_flags
     decision = recommend(policy, statuses(findings), flags, has_documents=True)
     timings["verify"] = _since(clock)
-    return ReviewOutcome(decision, findings, flags, hits, result, input_hash, timings)
+
+    # A wrong approval costs far more than an extra referral, so a would-be approval gets a second,
+    # narrow look for reasons against it. It can only send a case to a person, never approve one.
+    concerns: list[dict] = []
+    checkable = approval_check and hasattr(provider, "check_approval")
+    if decision.recommendation == "meets_criteria" and checkable:
+        clock = time.perf_counter()
+        met = [f.criterion_id for f in findings if f.finding == "documented"]
+        with tracer.start_as_current_span("review.approval_check"):
+            check = provider.check_approval(task, met)
+        concerns = verify_concerns(check.concerns, masked, check.version != "approval-check-v1")
+        result.tokens_in += check.tokens_in
+        result.tokens_out += check.tokens_out
+        result.detail["approval_check"] = {
+            "version": check.version,
+            "concerns_given": len(check.concerns),
+            "concerns_verified": len(concerns),
+        }
+        if concerns:
+            flags.add("approval_concern")
+            base = recommend(policy, statuses(findings), flags, has_documents=True)
+            decision = Decision(
+                base.recommendation,
+                base.reasons
+                + [f"{c['kind'].capitalize()}: \u201c{c['quote']}\u201d" for c in concerns],
+            )
+        timings["approval_check"] = _since(clock)
+    return ReviewOutcome(decision, findings, flags, hits, result, concerns, input_hash, timings)
 
 
 def _since(start: float) -> int:

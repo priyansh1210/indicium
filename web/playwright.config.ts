@@ -9,7 +9,7 @@ export default defineConfig({
   workers: 1, // the tests decide real cases, so they run one after another
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    baseURL: process.env.BASE_URL ?? "http://localhost:8080", // through the proxy, as people arrive
     trace: "retain-on-failure",
   },
   projects: [

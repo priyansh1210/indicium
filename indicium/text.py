@@ -87,4 +87,10 @@ def html_to_text(html: str) -> str:
     parser.close()
     # \s also matches the non-breaking spaces policy HTML is full of.
     lines = (re.sub(r"\s+", " ", line).strip() for line in "".join(parser.parts).splitlines())
-    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
+    return join_orphan_markers(re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip())
+
+
+def join_orphan_markers(text: str) -> str:
+    """A list item whose content sits in its own paragraph leaves a lone "-" line; join it to the
+    text it marks ("-" then "The LCD ..." becomes "- The LCD ...")."""
+    return re.sub(r"(?m)^-[ \t]*\n+(?=\S)", "- ", text)

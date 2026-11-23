@@ -55,3 +55,8 @@ def test_html_to_text_keeps_structure():
     assert html_to_text(html) == (
         "Red flags include:\n\n- Fever\n\n- Saddle anesthesia\n\nAt least four weeks.\nNext’s line"
     )
+
+
+def test_a_list_item_wrapping_a_paragraph_keeps_its_marker_on_the_text():
+    html = "<ul><li><p>The LCD-related article.</p></li><li>Plain item</li></ul>"
+    assert html_to_text(html) == "- The LCD-related article.\n\n- Plain item"

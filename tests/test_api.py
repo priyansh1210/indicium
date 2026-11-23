@@ -247,3 +247,53 @@ def test_summary_counts_and_policy_source_spans(world):
     text = detail["document"]["source_text"]
     for start, end in detail["source_spans"].values():
         assert 0 <= start < end <= len(text)
+
+
+def test_request_ids_and_metrics(world):
+    ok = world["viewer"].get("/cases/summary", headers={"X-Request-ID": "trace-abc.123"})
+    assert ok.headers["x-request-id"] == "trace-abc.123"
+    unsafe = world["viewer"].get("/cases/summary", headers={"X-Request-ID": "bad id\nwith newline"})
+    assert unsafe.headers["x-request-id"] != "bad id\nwith newline"
+    assert len(unsafe.headers["x-request-id"]) == 32
+
+    world["viewer"].get("/cases/1")
+    text = world["anonymous"].get("/metrics").text
+    assert 'indicium_cases{status="' in text
+    assert "indicium_review_oldest_queued_seconds" in text
+    # Routes are labelled by template, so metrics do not grow with every case id.
+    assert 'route="/cases/{case_id}"' in text
+    assert 'route="/cases/1"' not in text
+
+
+def test_an_api_key_acts_only_on_its_own_cases(api, world):
+    other_key = None
+    with api.app.state.pool.connection() as conn:
+        other_key = create_api_key(conn, "other-portal", "test")
+    other = TestClient(api.app, headers={"Authorization": f"Bearer {other_key}"})
+    body = CASES["cpap-02-mild-with-sleepiness"].request.model_dump(mode="json")
+    mine = world["intake"].post("/cases", json=body)
+    assert mine.status_code == 201
+    # The other submitter can neither learn the case id nor add to the case.
+    taken = other.post("/cases", json=body)
+    assert taken.status_code == 409 and "case_id" not in taken.text
+    note = {"documents": [{"doc_id": "extra-note", "text": "More notes."}]}
+    assert other.post(f"/cases/{mine.json()['case_id']}/documents", json=note).status_code == 404
+
+
+def test_logs_are_json_lines_with_the_request_id():
+    import json
+    import logging
+
+    from indicium.observability import JsonFormatter, request_id
+
+    token = request_id.set("req-123")
+    try:
+        record = logging.LogRecord(
+            "indicium.http", logging.INFO, __file__, 1, "request", None, None
+        )
+        record.route, record.status = "/cases/{case_id}", 200
+        line = json.loads(JsonFormatter().format(record))
+    finally:
+        request_id.reset(token)
+    assert line["request_id"] == "req-123" and line["route"] == "/cases/{case_id}"
+    assert line["status"] == 200 and line["level"] == "info"

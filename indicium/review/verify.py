@@ -89,6 +89,37 @@ def verify(
     return checked, flags
 
 
+def verify_concerns(
+    concerns: list, documents: dict[str, MaskedDocument], trust_verdict: bool = True
+) -> list[dict]:
+    """The approval check's concerns whose quotes are really in the notes, in original text.
+    With trust_verdict, a passage the checker itself says does not argue against approval is
+    dropped; the strict version (v1) never asks, so every verified passage counts."""
+    verified = []
+    for c in concerns:
+        if trust_verdict and not c.against_approval:
+            continue
+        doc = documents.get(c.doc_id)
+        if doc is None or len(c.quote.strip()) < MIN_QUOTE_CHARS:
+            continue
+        span = locate(c.quote, doc.masked)
+        if span is None:
+            continue
+        start, end = original_span(doc.index, *span)
+        verified.append(
+            {
+                "kind": c.kind,
+                "criterion_id": c.criterion_id,
+                "doc_id": c.doc_id,
+                "quote": doc.original[start:end],
+                "start": start,
+                "end": end,
+                "explanation": c.explanation[:500],
+            }
+        )
+    return verified
+
+
 def statuses(checked: list[CheckedFinding]) -> dict[str, bool | None]:
     """Findings as the three values the policy tree is evaluated with."""
     value = {"documented": True, "contradicted": False}

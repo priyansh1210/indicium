@@ -20,4 +20,5 @@ COPY data/policies/*.yaml data/policies/
 COPY data/cases data/cases
 USER indicium
 EXPOSE 8000
-CMD ["uvicorn", "indicium.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+# Access lines come from the app (JSON, with request ids), so uvicorn's own are off.
+CMD ["uvicorn", "indicium.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--no-access-log"]

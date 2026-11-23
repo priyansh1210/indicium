@@ -19,6 +19,7 @@ import time
 from psycopg import Connection
 from psycopg.types.json import Jsonb
 
+from indicium import observability
 from indicium.cases.store import load_request, set_status
 from indicium.config import settings
 from indicium.db import audit, make_pool
@@ -28,6 +29,7 @@ from indicium.review.providers import Provider, provider_from_settings
 from indicium.review.rules import Decision
 
 log = logging.getLogger("indicium.worker")
+tracer = observability.tracer
 ACTOR = "system:review-worker"
 
 
@@ -76,6 +78,12 @@ def claim(conn: Connection, lease_seconds: int) -> dict | None:
 
 
 def process(pool, provider: Provider, run: dict) -> None:
+    attributes = {"case_id": run["case_id"], "run_id": run["run_id"], "attempt": run["attempts"]}
+    with tracer.start_as_current_span("review.run", attributes=attributes):
+        _process(pool, provider, run)
+
+
+def _process(pool, provider: Provider, run: dict) -> None:
     s = settings()
     if run["attempts"] > s.worker_max_attempts:
         with pool.connection() as conn:
@@ -90,10 +98,10 @@ def process(pool, provider: Provider, run: dict) -> None:
         if policy is None:
             outcome, version_id = None, None
         else:
-            outcome = review(request, policy, provider, s.min_confidence)
+            outcome = review(request, policy, provider, s.min_confidence, s.approval_check)
             version_id = matches[0]["version_id"]
     except Exception as error:
-        log.exception("review %s failed", run["run_id"])
+        log.exception("review failed", extra={"case_id": run["case_id"], "run_id": run["run_id"]})
         with pool.connection() as conn:
             _fail(conn, run, f"{type(error).__name__}: {error}"[:2000], retry=True)
         return
@@ -118,6 +126,7 @@ def _complete(conn, run: dict, outcome: ReviewOutcome, version_id: int, latency:
         "input_hash": outcome.input_hash,
         "timings_ms": outcome.timings_ms,
         "injection_hits": [vars(h) for h in outcome.injection_hits],
+        "concerns": outcome.concerns,
     } | (result.detail if result else {})
     updated = conn.execute(
         "update review.runs set status = 'done', finished_at = now(), lease_until = null,"
@@ -260,7 +269,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m indicium.review.worker")
     parser.add_argument("--once", action="store_true", help="exit when the queue is empty")
     args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+    observability.configure("indicium-worker", settings().log_json)
     stop = threading.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, lambda *_: stop.set())

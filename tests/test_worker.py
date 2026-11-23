@@ -148,4 +148,25 @@ def test_a_lease_shorter_than_the_slowest_model_call_is_refused():
 
     with pytest.raises(ValidationError, match="must exceed the longest model call"):
         Settings(model_timeout_seconds=120, model_max_retries=3, worker_lease_seconds=900)
-    Settings(model_timeout_seconds=90, model_max_retries=3, worker_lease_seconds=900)
+    Settings(
+        model_timeout_seconds=90,
+        model_max_retries=3,
+        worker_lease_seconds=900,
+        approval_check=False,
+    )
+
+
+def test_the_lease_also_covers_the_approval_check():
+    from pydantic import ValidationError
+
+    from indicium.config import Settings
+
+    with pytest.raises(ValidationError, match="must exceed"):
+        Settings(model_timeout_seconds=90, model_max_retries=3, worker_lease_seconds=900)
+    Settings(
+        model_timeout_seconds=90,
+        model_max_retries=3,
+        worker_lease_seconds=900,
+        approval_check=False,
+    )
+    Settings()  # the defaults are consistent

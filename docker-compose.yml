@@ -66,13 +66,12 @@ services:
     environment:
       INDICIUM_DATABASE_URL: postgresql://indicium:indicium@postgres:5432/indicium
       INDICIUM_DEMO_USERS: "true" # shows the demo sign-ins on the sign-in page; demo only
+      FORWARDED_ALLOW_IPS: "*"
     depends_on:
       migrate:
         condition: service_completed_successfully
-    # shortcut: the API is published directly for local development; in Phase 7 the Caddy proxy
-    # becomes the only entry point and this port mapping goes away.
-    ports:
-      - "8000:8000"
+    # Not published: only the proxy and the web app reach it. That is also why it may trust the
+    # X-Forwarded-For header they send (FORWARDED_ALLOW_IPS), for the per-address sign-in limit.
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/ready')"]
       interval: 5s
@@ -87,14 +86,31 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    # shortcut: published directly for local use; in Phase 7 the proxy becomes the only way in.
-    ports:
-      - "3000:3000"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/login"]
       interval: 5s
       timeout: 3s
       retries: 30
 
+  # The only published port.
+  proxy:
+    image: caddy:2.10.2-alpine
+    ports:
+      - "8080:80"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:80/login"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
 volumes:
   pgdata:
+  caddy-data:

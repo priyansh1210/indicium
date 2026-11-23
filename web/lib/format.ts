@@ -30,7 +30,7 @@ export const FLAG_LABEL: Record<string, string> = {
   diagnosis_not_covered: "Diagnosis code not on the policy's list",
   conflicting_evidence: "Notes disagree on an item",
   low_confidence: "Low confidence on an item",
-  extraction_failed: "Notes could not be read automatically",
+  approval_concern: "A second check found a reason against approval",
 };
 
 /** "due in 2 d 4 h" or "overdue by 3 h", relative to now. */

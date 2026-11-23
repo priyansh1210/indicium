@@ -148,3 +148,83 @@ def test_the_baseline_finds_evidence_but_never_approves(case_id):
     assert outcome.decision.recommendation != "meets_criteria"
     for f in outcome.findings:  # whatever it found, it found in the notes
         assert all(e["quote"] for e in f.evidence)
+
+
+class Checking(Scripted):
+    """A scripted provider that also answers the approval check."""
+
+    def __init__(self, extraction, concerns):
+        super().__init__(extraction)
+        self.concerns, self.checked = concerns, []
+
+    def check_approval(self, task, met):
+        from indicium.review.providers import CheckResult
+
+        self.checked.append(met)
+        return CheckResult(self.concerns, 10, 5, "approval-check-v2")
+
+
+def concern(doc_id: str, quote: str):
+    from indicium.review.providers import Concern
+
+    return Concern(kind="exclusion", criterion_id="", doc_id=doc_id, quote=quote, explanation="x")
+
+
+def test_a_verified_concern_turns_an_approval_into_a_referral():
+    case = CASES["tka-01-end-stage-oa"]
+    note = "Night pain."  # really in the surgeon's note
+    provider = Checking(perfect(case), [concern("surgeon-note", note)])
+    outcome = review(case.request, POLICIES[case.policy_id], provider, 0.6)
+    assert provider.checked and "imaging_advanced_disease" in provider.checked[0]
+    assert outcome.decision.recommendation == "refer_to_clinician"
+    assert outcome.concerns[0]["quote"] == "Night pain"  # edge punctuation is not evidence
+    assert outcome.result.tokens_in >= 10  # the check's tokens are counted
+
+
+def test_an_invented_concern_cannot_block_a_valid_approval():
+    case = CASES["tka-01-end-stage-oa"]
+    provider = Checking(
+        perfect(case), [concern("surgeon-note", "Active knee infection noted today.")]
+    )
+    outcome = review(case.request, POLICIES[case.policy_id], provider, 0.6)
+    assert outcome.decision.recommendation == "meets_criteria"
+    assert outcome.concerns == []
+
+
+def test_the_check_runs_only_for_would_be_approvals():
+    case = CASES["lm-06-three-weeks-no-treatment"]
+    provider = Checking(perfect(case), [])
+    review(case.request, POLICIES[case.policy_id], provider, 0.6)
+    assert provider.checked == []
+
+
+def test_a_concern_the_checker_itself_says_supports_approval_is_ignored():
+    case = CASES["tka-01-end-stage-oa"]
+    supporting = concern("surgeon-note", "Night pain.")
+    supporting.against_approval = False
+    outcome = review(
+        case.request, POLICIES[case.policy_id], Checking(perfect(case), [supporting]), 0.6
+    )
+    assert outcome.decision.recommendation == "meets_criteria"
+
+
+def test_the_model_is_told_what_the_service_code_means():
+    from indicium.review.providers import _service
+
+    case = CASES["adv-05-wrong-body-region"]
+    _, provider = run(case.case_id)
+    assert "lumbar" in _service(provider.tasks[0])
+
+
+def test_the_strict_check_counts_every_verified_passage():
+    from indicium.review.providers import CheckResult
+
+    class Strict(Checking):
+        def check_approval(self, task, met):
+            return CheckResult(self.concerns, 0, 0, "approval-check-v1")
+
+    case = CASES["tka-01-end-stage-oa"]
+    passage = concern("surgeon-note", "Night pain.")
+    passage.against_approval = False  # the strict prompt never asks; a stray value is ignored
+    outcome = review(case.request, POLICIES[case.policy_id], Strict(perfect(case), [passage]), 0.6)
+    assert outcome.decision.recommendation == "refer_to_clinician"

@@ -46,7 +46,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker compose up --build --wait
-      - run: curl -fsS http://localhost:8000/ready | grep '"db":true'
+      - run: docker compose exec -T api python -c "import urllib.request as u; print(u.urlopen('http://127.0.0.1:8000/ready').read())"
+      # The proxy is the only way in, and it does not publish operations endpoints.
+      - run: curl -fsS http://localhost:8080/login | grep -q Indicium
+      - run: test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/metrics)" = 404
+      - run: test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/openapi.json)" = 404
       - name: Wait for the worker to review every demo case
         run: |
           for i in $(seq 1 60); do

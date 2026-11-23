@@ -85,6 +85,15 @@ export type CaseDetail = {
     model_recommendation: Recommendation;
     flags: string[];
     injection_hits: { doc_id: string; start: number; end: number; text: string }[];
+    concerns: {
+      kind: "exclusion" | "scope" | "contradiction";
+      criterion_id: string;
+      doc_id: string;
+      quote: string;
+      start: number;
+      end: number;
+      explanation: string;
+    }[];
     provider: string | null;
     model: string | null;
     prompt_version: string | null;
