@@ -55,7 +55,7 @@ test("a practice registers, confirms its email and sends a request", async ({ pa
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("harbor-practice-pass");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Requests" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Requests", exact: true })).toBeVisible();
   await expect(page.getByText("No requests yet.")).toBeVisible();
 
   await page.getByRole("link", { name: "New request" }).first().click();
@@ -87,7 +87,7 @@ test("a nurse pends a practice's request; the practice reads why and sends docum
   await page.getByRole("button", { name: "Sign out" }).click();
 
   await sampleSignIn(page, /Sam Okafor/);
-  await expect(page.getByRole("heading", { name: "Requests" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Requests", exact: true })).toBeVisible();
   await page.getByRole("link", { name: patient }).first().click();
   await expect(page.getByRole("heading", { name: "Needs information" })).toBeVisible();
   await expect(page.locator("blockquote")).toContainText("Please send the physical therapy notes from the last six weeks.");

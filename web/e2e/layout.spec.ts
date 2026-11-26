@@ -47,7 +47,7 @@ test("provider portal screens fit the viewport", async ({ page }) => {
   await page.goto("/login");
   await page.getByText("Exploring Indicium? Use a sample account").click();
   await page.getByRole("button", { name: /Sam Okafor/ }).click();
-  await expect(page.getByRole("heading", { name: "Requests" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Requests", exact: true })).toBeVisible();
   await fits(page);
   await page.locator("main ul li a").first().click();
   await expect(page.getByRole("heading", { name: "History" })).toBeVisible();
