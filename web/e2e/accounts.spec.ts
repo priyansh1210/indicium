@@ -94,6 +94,8 @@ test("an admin invites a nurse, who sets a password, turns on two-step sign-in a
   const earlier = await emailIds(request, email);
   await page.goto("/login");
   await page.getByRole("link", { name: "Forgot your password?" }).click();
+  // The sign-in page has an Email field too: wait for the reset page before filling.
+  await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Send the link" }).click();
   await expect(page.getByText(/If that address has an account/)).toBeVisible();
