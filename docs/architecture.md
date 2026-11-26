@@ -123,7 +123,7 @@ One interface, three implementations, chosen per run:
 Permissions, not a ladder: `viewer` reads; `nurse` submits, corrects checklist items (with a
 reason, append-only) and approves, pends or refers; `physician` can also decide referred cases,
 which is the only path to a denial (also enforced by a database constraint); `supervisor` watches
-the queue and assigns work without deciding; `admin` manages policies, people and API keys and
+the queue on a dashboard and assigns work without deciding; `admin` manages policies, people and API keys and
 makes no clinical decisions.
 
 Staff accounts are invited, never self-registered: an admin names the person and role, and the

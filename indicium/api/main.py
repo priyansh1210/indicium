@@ -9,7 +9,7 @@ from psycopg import errors
 from psycopg_pool import PoolTimeout
 
 from indicium import observability
-from indicium.api import account, auth, cases, people, policies, portal
+from indicium.api import account, auth, cases, dashboard, people, policies, portal
 from indicium.config import settings
 from indicium.db import make_pool
 
@@ -75,6 +75,7 @@ app.include_router(auth.router)
 app.include_router(account.router)
 app.include_router(people.router)
 app.include_router(portal.router)
+app.include_router(dashboard.router)
 app.include_router(cases.router)
 app.include_router(policies.router)
 

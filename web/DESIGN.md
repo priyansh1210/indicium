@@ -50,7 +50,7 @@ through next/font.
 | missing | #7A5914 on #F7EFDC | "Not documented" |
 | conflict | #6A4A93 on #EFE9F6 | "Notes disagree" |
 | ink-3 | #8A857C | large text only (inactive step titles); fails AA below 18px |
-| chart / chart-muted | #3B6AA3 / #B3ADA2 | result bars: the default configuration and its context (dataviz validator: lightness and CVD pass) |
+| chart / chart-muted | #3B6AA3 / #B3ADA2 | result bars and every dashboard chart: one hue, muted for context (dataviz validator: lightness and CVD pass) |
 
 Status colours appear only with their word beside them, never as decoration.
 
@@ -68,7 +68,8 @@ Status colours appear only with their word beside them, never as decoration.
   admin tabs People, API keys, Activity. Hard-to-undo buttons ask once more in place
   ("Confirm deactivate") instead of a dialog. Secrets and links shown once sit in a field with
   Copy.
-- Top bar: wordmark, Worklist, Policies; the signed-in person and role at the right.
+- Top bar: wordmark, Worklist, Dashboard (supervisor and admin), Policies; the signed-in person
+  and role at the right.
 - Worklist: tabs by status with counts, then one table, soonest deadline first. Each deadline
   has a bar of the decision window used (amber in the last quarter, red when overdue). The
   whole row opens the case. The status column appears only when a view mixes statuses. On a
@@ -76,6 +77,10 @@ Status colours appear only with their word beside them, never as decoration.
 - Case: header (patient, service, policy, deadline), the recommendation with its reasons, then two
   columns from 1100px: checklist (left, scrolls) and documents (right, sticky). Below 1100px the
   documents follow the checklist. The decision panel sits at the end of the checklist.
+- Dashboard: a row of figures (each with its next step), then sheets of one chart each. Charts
+  use the one chart hue; counts are meter rows on one baseline; the daily columns are drawn at
+  the width they are shown at and keep a table of the same values; recommendation against
+  decision is a matrix whose followed cells are outlined. Every chart carries its period in words.
 - Sheets: white, radius 12, one hairline border; no nested cards, no shadows. Hairline rules
   and proximity group things before a sheet does.
 

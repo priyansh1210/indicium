@@ -126,6 +126,11 @@ order, the diagnoses and the clinical notes (pasted or loaded from a text file).
 request, read the reason for every decision, and answer a request for information with more
 documents. The sample practice account (Sam Okafor) sees the 48 demo requests.
 
+Supervisors and admins have a dashboard (Morgan Supervisor in the demo): the open queue and
+what is past its deadline, decisions per day, how often reviewers followed the recommendation,
+each reviewer's load, and how the automated review is doing, over the last 7, 30 or 90 days.
+Every figure is computed from the cases and decisions themselves, so it cannot drift from them.
+
 ### With a language model
 
 Any OpenAI-compatible endpoint works. For a local model with llama.cpp:

@@ -33,6 +33,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 <NavLink href="/" icon="worklist">
                   Worklist
                 </NavLink>
+                {(me.role === "supervisor" || me.role === "admin") && (
+                  <NavLink href="/dashboard" icon="chart">
+                    Dashboard
+                  </NavLink>
+                )}
                 <NavLink href="/policies" icon="document">
                   Policies
                 </NavLink>

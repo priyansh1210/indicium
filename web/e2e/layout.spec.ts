@@ -2,7 +2,10 @@ import { expect, test, type Page } from "@playwright/test";
 
 // Every main screen fits its viewport: nothing scrolls sideways, at desktop and phone width.
 async function fits(page: Page) {
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  // A phone browser widens its viewport to fit wide content, so compare with the screen too.
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - Math.min(window.innerWidth, window.screen.width),
+  );
   expect(overflow).toBeLessThanOrEqual(0);
 }
 
@@ -29,7 +32,7 @@ test("account and administration screens fit the viewport", async ({ page }) => 
   await page.getByText("Exploring Indicium? Use a sample account").click();
   await page.getByRole("button", { name: /Casey Admin/ }).click();
   await expect(page.getByRole("heading", { name: "Worklist" })).toBeVisible();
-  for (const path of ["/account", "/admin/people", "/admin/api-keys", "/admin/activity", "/policies"]) {
+  for (const path of ["/account", "/admin/people", "/admin/api-keys", "/admin/activity", "/policies", "/dashboard"]) {
     await page.goto(path);
     await expect(page.locator("h1")).toBeVisible();
     await fits(page);
