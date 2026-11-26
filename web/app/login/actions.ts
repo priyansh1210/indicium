@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { API_URL, detailText } from "@/lib/api";
 import { SESSION_COOKIE } from "@/lib/session";
 
-export type SignInState = { error: string | null };
+// mfa: the password was right and the account also needs a code from an authenticator app.
+export type SignInState = { error: string | null; mfa?: boolean };
 
 /** Only same-site paths: "/cases/3" yes, "//evil.example" or "https://..." no. */
 function safeNext(next: FormDataEntryValue | null): string {
@@ -26,14 +27,19 @@ export async function signIn(_: SignInState, form: FormData): Promise<SignInStat
         // The API limits failed sign-ins per address; pass on the visitor's, as the proxy saw it.
         ...(forwarded ? { "X-Forwarded-For": forwarded } : {}),
       },
-      body: JSON.stringify({ email: form.get("email"), password: form.get("password") }),
+      body: JSON.stringify({
+        email: form.get("email"),
+        password: form.get("password"),
+        code: form.get("code") || null,
+      }),
     });
   } catch {
     return { error: "The Indicium service cannot be reached. Try again in a moment." };
   }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    return { error: detailText(body.detail) };
+    if (body.detail === "mfa_required") return { error: null, mfa: true };
+    return { error: detailText(body.detail), mfa: form.has("code") };
   }
   const cookie = response.headers.getSetCookie().find((c) => c.startsWith(`${SESSION_COOKIE}=`));
   const token = cookie?.split(";")[0].split("=")[1];

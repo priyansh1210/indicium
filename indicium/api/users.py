@@ -13,25 +13,33 @@ import sys
 import psycopg
 from psycopg.rows import dict_row
 
-from indicium.api.auth import DEMO_PASSWORD, PERMISSIONS, hash_password, token_hash
+from indicium.api.auth import DEMO_PASSWORD, hash_password, token_hash
 from indicium.config import settings
 from indicium.db import audit
 
 DEMO = [
     ("nurse@demo.indicium", "Avery Nurse", "nurse"),
     ("physician@demo.indicium", "Jordan Physician", "physician"),
+    ("supervisor@demo.indicium", "Morgan Supervisor", "supervisor"),
     ("admin@demo.indicium", "Casey Admin", "admin"),
     ("viewer@demo.indicium", "Riley Viewer", "viewer"),
 ]
 
 
+# Roles a person on the reviewing side can hold (API keys are "intake").
+STAFF_ROLES = {"viewer", "nurse", "physician", "supervisor", "admin"}
+
+
 def create_user(conn, email: str, name: str, role: str, password: str, actor: str) -> int:
-    if role not in PERMISSIONS or role == "intake":
-        raise ValueError(f"role must be one of viewer, nurse, physician, admin, not {role!r}")
+    """A ready account with a known password (for the first admin, set up from the command line).
+    Everyone else is invited from the admin screens and picks their own password."""
+    if role not in STAFF_ROLES:
+        raise ValueError(f"role must be one of {', '.join(sorted(STAFF_ROLES))}, not {role!r}")
     if len(password) < 12:
         raise ValueError("passwords need at least 12 characters")
     row = conn.execute(
-        "insert into app.users (email, name, role, password_hash) values (%s, %s, %s, %s)"
+        "insert into app.users (email, name, role, password_hash, email_verified_at)"
+        " values (%s, %s, %s, %s, now())"
         " on conflict (email) do nothing returning user_id",
         (email.strip().lower(), name, role, hash_password(password)),
     ).fetchone()

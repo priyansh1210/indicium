@@ -13,6 +13,7 @@ await page.waitForTimeout(4500); // the intro, then the example walks to its sec
 await page.screenshot({ path: `${OUT}/welcome.png` });
 
 await page.goto(`${BASE}/login`);
+await page.getByText("Exploring Indicium? Use a sample account").click();
 await page.getByRole("button", { name: /Avery Nurse/ }).click();
 await page.getByRole("heading", { name: "Worklist" }).waitFor();
 await page.waitForTimeout(1200);

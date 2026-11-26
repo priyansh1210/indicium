@@ -2,7 +2,7 @@
 // forwarding the user's session, so the API can stay on the stack's private network.
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { SESSION_COOKIE } from "./session";
@@ -29,6 +29,28 @@ export function detailText(detail: unknown): string {
       .join("; ");
   }
   return "Something went wrong.";
+}
+
+/** POST to a route that needs no session (password links, registration). The visitor's address
+ *  goes along, as the proxy saw it, for the API's per-address limits. */
+export async function publicApi<T>(path: string, body: unknown): Promise<T> {
+  const forwarded = (await headers()).get("x-forwarded-for");
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json", ...(forwarded ? { "X-Forwarded-For": forwarded } : {}) },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(503, "The Indicium service cannot be reached. Try again in a moment.");
+  }
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw new ApiError(response.status, detailText(detail.detail));
+  }
+  return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
 /** Call the API as the signed-in user. A missing or expired session goes to the sign-in page. */

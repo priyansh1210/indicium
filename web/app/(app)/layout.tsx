@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Icon } from "@/components/icons";
 import { NavLink } from "@/components/nav-link";
 import { Wordmark } from "@/components/wordmark";
@@ -20,12 +22,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <NavLink href="/policies" icon="document">
               Policies
             </NavLink>
+            {me.role === "admin" && (
+              <NavLink href="/admin" icon="users">
+                Admin
+              </NavLink>
+            )}
           </nav>
           <div className="ml-auto flex items-center gap-4">
-            <p className="hidden text-right text-[13px] leading-tight sm:block">
-              <span className="block font-semibold">{me.name}</span>
-              <span className="text-ink-2 capitalize">{me.role}</span>
-            </p>
+            <Link href="/account" className="flex items-center gap-2 rounded-md px-2 py-1 text-right text-[13px] leading-tight hover:bg-tint">
+              <span className="hidden sm:block">
+                <span className="block font-semibold">{me.name}</span>
+                <span className="text-ink-2 capitalize">{me.role}</span>
+              </span>
+              <Icon name="user" className="size-5 sm:hidden" />
+              <span className="sr-only sm:hidden">Your account</span>
+            </Link>
             <form action={signOut}>
               <button type="submit" className="btn h-9 px-3" aria-label="Sign out">
                 <Icon name="signout" />

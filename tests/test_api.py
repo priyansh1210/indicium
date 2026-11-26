@@ -15,7 +15,17 @@ from indicium.review.worker import claim, process
 from tests.test_engine import Scripted, perfect
 
 CASES = {c.case_id: c for c in read_cases(Path("data/cases"))}
-PUBLIC = {"/health", "/ready", "/auth/login", "/auth/logout", "/auth/demo-users"}
+PUBLIC = {
+    "/health",
+    "/ready",
+    "/auth/login",
+    "/auth/logout",
+    "/auth/demo-users",
+    "/auth/forgot",
+    "/auth/token",
+    "/auth/password/set",
+    "/auth/verify",
+}
 
 
 @pytest.fixture(scope="module")
@@ -75,6 +85,8 @@ def test_every_route_but_the_public_ones_needs_a_sign_in(api, world):
             path.replace("{case_id}", "1")
             .replace("{criterion_id}", "x")
             .replace("{version_id}", "1")
+            .replace("{user_id}", "1")
+            .replace("{key_id}", "1")
         )
         for method in operations:
             response = world["anonymous"].request(method, concrete, json={})

@@ -1,16 +1,8 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { api } from "@/lib/api";
+import { attempt, type ActionState } from "@/lib/attempt";
 
-import { ApiError, api } from "@/lib/api";
-
-export async function publishVersion(versionId: number): Promise<{ error: string | null }> {
-  try {
-    await api(`/policies/versions/${versionId}/publish`, { method: "POST" });
-  } catch (error) {
-    if (error instanceof ApiError) return { error: error.message };
-    throw error;
-  }
-  refresh();
-  return { error: null };
+export async function publishVersion(versionId: number): Promise<ActionState> {
+  return attempt(() => api(`/policies/versions/${versionId}/publish`, { method: "POST" }), "Published.");
 }

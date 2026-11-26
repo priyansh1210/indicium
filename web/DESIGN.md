@@ -59,7 +59,15 @@ Status colours appear only with their word beside them, never as decoration.
 - Welcome: hero (headline, the review screen in miniature), how a review works (four steps
   beside a sticky stage), guarantees with the file or constraint that enforces each, results
   from the eval runs (two bar charts and a table), one closing call to action.
-- Sign-in: one-click demo roles first, each with what the role may do; email form beside them.
+- Sign-in: the email form first ("Forgot your password?" beside the password label; a code
+  field appears only when the account has two-step sign-in). Sample accounts sit in a closed
+  disclosure below it, each with what the role may do, and exist only in demo mode.
+- Password links (invite, reset, verify) and registration share the sign-in frame: display
+  title, one lead sentence, one form.
+- Account and admin: settings rows (title and why on the left, the control on the right);
+  admin tabs People, API keys, Activity. Hard-to-undo buttons ask once more in place
+  ("Confirm deactivate") instead of a dialog. Secrets and links shown once sit in a field with
+  Copy.
 - Top bar: wordmark, Worklist, Policies; the signed-in person and role at the right.
 - Worklist: tabs by status with counts, then one table, soonest deadline first. Each deadline
   has a bar of the decision window used (amber in the last quarter, red when overdue). The

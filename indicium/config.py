@@ -6,7 +6,7 @@ A missing or malformed value stops the process at start, not in the middle of a 
 from functools import cache
 from typing import Literal
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -50,14 +50,31 @@ class Settings(BaseSettings):
     session_hours: int = Field(12, ge=1, le=24 * 30)
     cookie_secure: bool = False  # set true when served over HTTPS
     max_body_bytes: int = Field(5_000_000, ge=10_000)
-    # Seeds sign-ins for the demo (one per role) and shows them on the sign-in page. Never in
+    # Seeds sign-ins for the demo (one per role) and offers them on the sign-in page. Never in
     # production.
     demo_users: bool = False
+    # Where people open the web app; links in emails start with it.
+    public_url: str = "http://localhost:8080"
+    invite_hours: int = Field(72, ge=1, le=24 * 14)
+    reset_minutes: int = Field(60, ge=5, le=24 * 60)
+
+    # Email (indicium/mail.py). Empty URL: messages go to the log (development only).
+    smtp_url: SecretStr = SecretStr("")
+    mail_from: str = "Indicium <no-reply@indicium.local>"
 
     # Worker
     worker_poll_seconds: float = Field(1.0, gt=0)
     worker_lease_seconds: int = Field(1800, ge=30)
     worker_max_attempts: int = Field(3, ge=1)
+
+    @field_validator("smtp_url")
+    @classmethod
+    def _known_mail_transport(cls, url: SecretStr) -> SecretStr:
+        # Checked at start: a typo here would otherwise stop all email without a sound.
+        scheme = url.get_secret_value().partition("://")[0]
+        if url.get_secret_value() and scheme not in ("smtp", "smtp+starttls", "smtps"):
+            raise ValueError("INDICIUM_SMTP_URL must start smtp://, smtp+starttls:// or smtps://")
+        return url
 
     @model_validator(mode="after")
     def _lease_outlasts_the_model(self) -> "Settings":

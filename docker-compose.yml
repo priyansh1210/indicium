@@ -57,6 +57,8 @@ services:
       INDICIUM_OPENAI_MODEL: ${INDICIUM_OPENAI_MODEL:-}
       INDICIUM_OPENAI_API_KEY: ${INDICIUM_OPENAI_API_KEY:-}
       INDICIUM_PROMPT_VERSION: ${INDICIUM_PROMPT_VERSION:-extract-v1}
+      # The worker also sends the email outbox (invitations, password resets, decisions).
+      INDICIUM_SMTP_URL: ${INDICIUM_SMTP_URL:-smtp://mailpit:1025}
     extra_hosts: ["host.docker.internal:host-gateway"] # reach a model server on the host
     stop_grace_period: 2m # let a running review finish
     restart: unless-stopped
@@ -65,7 +67,8 @@ services:
     <<: *py
     environment:
       INDICIUM_DATABASE_URL: postgresql://indicium:indicium@postgres:5432/indicium
-      INDICIUM_DEMO_USERS: "true" # shows the demo sign-ins on the sign-in page; demo only
+      INDICIUM_DEMO_USERS: "true" # offers the sample sign-ins on the sign-in page; demo only
+      INDICIUM_PUBLIC_URL: ${INDICIUM_PUBLIC_URL:-http://localhost:8080} # links in emails
       FORWARDED_ALLOW_IPS: "*"
     depends_on:
       migrate:
@@ -92,7 +95,14 @@ services:
       timeout: 3s
       retries: 30
 
-  # The only published port.
+  # Catches the stack's email locally: read it at http://localhost:8025. Bound to this machine
+  # only; a real deployment sets INDICIUM_SMTP_URL to its mail service instead.
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:8025:8025"
+
+  # The only published port for people.
   proxy:
     image: caddy:2.10.2-alpine
     ports:

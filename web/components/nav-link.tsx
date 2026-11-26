@@ -24,8 +24,9 @@ export function NavLink({
     >
       <Icon name={icon} />
       {/* Hover previews the stroke in grey; only the current page wears the marker. */}
+      {/* Below 640px the icons carry the bar; the words stay for screen readers. */}
       <span
-        className={`stroke stroke-under ${current ? "" : "[--stroke:var(--color-rule)] group-hover:[background-size:100%_38%]"}`}
+        className={`stroke stroke-under max-sm:sr-only ${current ? "" : "[--stroke:var(--color-rule)] group-hover:[background-size:100%_38%]"}`}
         data-on={current}
       >
         {children}

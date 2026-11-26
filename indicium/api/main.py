@@ -9,7 +9,7 @@ from psycopg import errors
 from psycopg_pool import PoolTimeout
 
 from indicium import observability
-from indicium.api import auth, cases, policies
+from indicium.api import account, auth, cases, people, policies
 from indicium.config import settings
 from indicium.db import make_pool
 
@@ -72,6 +72,8 @@ app = FastAPI(title="Indicium", lifespan=lifespan)
 app.add_middleware(BodyLimit, max_bytes=settings().max_body_bytes)
 app.add_middleware(observability.RequestContext)  # outermost: every response gets a request id
 app.include_router(auth.router)
+app.include_router(account.router)
+app.include_router(people.router)
 app.include_router(cases.router)
 app.include_router(policies.router)
 

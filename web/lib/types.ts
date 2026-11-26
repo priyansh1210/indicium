@@ -1,7 +1,7 @@
 // Shapes of the API's responses that the screens use. Kept by hand next to indicium/api.
 // shortcut: hand-kept types can drift from the API; generate from /openapi.json if they grow.
 
-export type Role = "viewer" | "nurse" | "physician" | "admin";
+export type Role = "viewer" | "nurse" | "physician" | "supervisor" | "admin";
 export type Finding = "documented" | "contradicted" | "absent" | "conflicting";
 export type Recommendation = "meets_criteria" | "pend_for_info" | "refer_to_clinician";
 export type CaseStatus =
@@ -117,5 +117,7 @@ export type AuditEvent = {
   at: string;
   actor: string;
   action: string;
+  target_type: string;
+  target_id: string;
   detail: Record<string, unknown>;
 };

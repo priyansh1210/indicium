@@ -5,7 +5,9 @@ the database keeps only its hash. Machine clients (an EHR, a provider portal) se
 "Authorization: Bearer ik_..." with an API key that can only submit requests.
 
 Permissions, not a role ladder: an admin manages the system but makes no clinical decisions,
-and only a physician may decide a referred case (and so deny).
+only a physician may decide a referred case (and so deny), and a supervisor watches the queue
+and hands out work without deciding cases. A person with a second factor also sends the code
+from their authenticator app.
 """
 
 import hashlib
@@ -17,6 +19,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from psycopg import sql
 from pydantic import BaseModel, Field
 
+from indicium.api.totp import matching_step
 from indicium.config import settings
 from indicium.db import Db, audit
 
@@ -25,7 +28,8 @@ PERMISSIONS = {
     "viewer": {"read"},
     "nurse": {"read", "submit", "review", "decide"},
     "physician": {"read", "submit", "review", "decide", "decide_referred"},
-    "admin": {"read", "submit", "manage"},
+    "supervisor": {"read", "oversee", "assign"},
+    "admin": {"read", "submit", "manage", "oversee"},
     "intake": {"submit"},  # API keys
 }
 # Failed sign-ins within the window block further attempts for that email, and (with a higher
@@ -34,6 +38,8 @@ MAX_FAILED_LOGINS = 5
 MAX_FAILED_LOGINS_PER_IP = 30
 LOGIN_WINDOW_MINUTES = 15
 DEMO_PASSWORD = "indicium-demo"  # noqa: S105 - demo sign-ins only, shown on purpose
+# Sent with 401 when the password was right and the second factor is still needed.
+MFA_REQUIRED = "mfa_required"
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -58,6 +64,7 @@ class Principal(BaseModel):
 class Login(BaseModel):
     email: str = Field(max_length=320)
     password: str = Field(max_length=200)  # bounds the hashing work one request can cause
+    code: str | None = Field(None, max_length=12)  # from an authenticator app, when one is set
 
 
 def hash_password(password: str, salt: bytes | None = None) -> str:
@@ -115,6 +122,14 @@ def require(permission: str):
     return check
 
 
+def signed_in_person(principal: Annotated[Principal, Depends(current_principal)]) -> Principal:
+    """Any person who is signed in, whatever their role; not an API key."""
+    if principal.kind != "user":
+        raise HTTPException(403, "This is for people signing in, not API keys")
+    return principal
+
+
+Person = Annotated[Principal, Depends(signed_in_person)]
 Reader = Annotated[Principal, Depends(require("read"))]
 Submitter = Annotated[Principal, Depends(require("submit"))]
 Reviewer = Annotated[Principal, Depends(require("review"))]
@@ -168,14 +183,26 @@ def login(credentials: Login, request: Request, response: Response, db: Db) -> P
                 headers={"Retry-After": str(seconds)},
             )
     user = db.execute(
-        "select user_id, email, name, role, password_hash from app.users"
-        " where email = %s and active",
+        "select user_id, email, name, role, password_hash, email_verified_at, totp_secret,"
+        " totp_last_step from app.users where email = %s and active and password_hash is not null",
         (email,),
     ).fetchone()
     valid = verify_password(credentials.password, user["password_hash"] if user else _NO_SUCH_USER)
     if not (user and valid):
         _record_failed_login(request, email, ip)
         raise HTTPException(401, "Wrong email or password")
+    if user["email_verified_at"] is None:
+        raise HTTPException(403, "Confirm your email address first: open the link we sent you.")
+    if user["totp_secret"]:
+        if not credentials.code:
+            raise HTTPException(401, MFA_REQUIRED)
+        step = matching_step(user["totp_secret"], credentials.code)
+        if step is None or step <= (user["totp_last_step"] or -1):  # each code works once
+            _record_failed_login(request, email, ip)
+            raise HTTPException(401, "That code is wrong or was already used")
+        db.execute(
+            "update app.users set totp_last_step = %s where user_id = %s", (step, user["user_id"])
+        )
 
     db.execute("delete from app.login_attempts where email = %s", (email,))
     db.execute("delete from app.sessions where expires_at < now()")  # keeps the table small
@@ -186,6 +213,7 @@ def login(credentials: Login, request: Request, response: Response, db: Db) -> P
         " values (%s, %s, now() + make_interval(hours => %s))",
         (token_hash(token), user["user_id"], hours),
     )
+    db.execute("update app.users set last_login_at = now() where user_id = %s", (user["user_id"],))
     audit(db, email, "auth.login", "user", user["user_id"], {"ip": ip})
     response.set_cookie(
         SESSION_COOKIE,
@@ -195,7 +223,7 @@ def login(credentials: Login, request: Request, response: Response, db: Db) -> P
         samesite="strict",  # never sent on a request another site starts
         secure=settings().cookie_secure,
     )
-    return Principal(kind="user", **{k: v for k, v in user.items() if k != "password_hash"})
+    return Principal(kind="user", **{k: user[k] for k in ("user_id", "email", "name", "role")})
 
 
 @router.post("/logout", status_code=204)
@@ -206,7 +234,7 @@ def logout(request: Request, response: Response, db: Db) -> None:
 
 
 @router.get("/me")
-def me(principal: Reader) -> Principal:
+def me(principal: Person) -> Principal:
     return principal
 
 

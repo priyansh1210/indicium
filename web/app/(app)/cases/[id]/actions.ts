@@ -1,20 +1,13 @@
 "use server";
 
-import { refresh } from "next/cache";
-
-import { ApiError, api } from "@/lib/api";
+import { api } from "@/lib/api";
+import { attempt as run } from "@/lib/attempt";
 
 export type FormState = { error: string | null; done?: boolean };
 
 async function attempt(call: () => Promise<unknown>): Promise<FormState> {
-  try {
-    await call();
-  } catch (error) {
-    if (error instanceof ApiError) return { error: error.message };
-    throw error; // a redirect (expired session) or a real failure
-  }
-  refresh();
-  return { error: null, done: true };
+  const { error } = await run(call, "");
+  return { error, done: error === null };
 }
 
 export async function correctItem(

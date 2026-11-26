@@ -30,7 +30,8 @@ export const ROLE_DUTY: Record<Role, string> = {
   nurse: "Reviews requests, corrects checklist items, approves, pends or refers to a physician.",
   physician: "Everything a nurse can do, and decides referred cases. The only role that can deny.",
   viewer: "Reads cases, evidence and policies. Cannot change anything.",
-  admin: "Publishes policy versions and manages people. Does not decide cases.",
+  supervisor: "Watches the queue and its deadlines and assigns cases to reviewers. Does not decide cases.",
+  admin: "Publishes policy versions and manages people and API keys. Does not decide cases.",
 };
 
 export const FLAG_LABEL: Record<string, string> = {

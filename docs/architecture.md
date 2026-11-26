@@ -122,8 +122,16 @@ One interface, three implementations, chosen per run:
 
 Permissions, not a ladder: `viewer` reads; `nurse` submits, corrects checklist items (with a
 reason, append-only) and approves, pends or refers; `physician` can also decide referred cases,
-which is the only path to a denial (also enforced by a database constraint); `admin` manages
-policies and users and makes no clinical decisions. Machine clients (an EHR or a provider portal)
+which is the only path to a denial (also enforced by a database constraint); `supervisor` watches
+the queue and assigns work without deciding; `admin` manages policies, people and API keys and
+makes no clinical decisions.
+
+Staff accounts are invited, never self-registered: an admin names the person and role, and the
+person chooses a password from a one-use emailed link (only its hash is stored). Resets work the
+same way and sign out every session. Two-step sign-in uses authenticator codes (RFC 6238), each
+accepted once. Changing a role or deactivating someone ends their sessions at once. Email is
+written to an outbox table in the same transaction as the change that causes it and sent by the
+worker, retried with backoff; a sent message keeps no body. Machine clients (an EHR or a provider portal)
 use API keys that can only submit. Every route declares its permission, and a test fails if a
 new route is reachable without signing in.
 

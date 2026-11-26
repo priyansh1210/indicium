@@ -14,7 +14,7 @@ test("a visitor without a session lands on the welcome page and can open the dem
   await expect(page.locator('mark.evidence[data-active="true"]')).toHaveCount(0);
   await expect(page.getByText("No sentence shows an infection.", { exact: false })).toBeVisible();
 
-  await page.getByRole("link", { name: "Open the demo" }).first().click();
+  await page.getByRole("link", { name: "Sign in" }).first().click();
   await expect(page).toHaveURL(/\/login$/);
 });
 

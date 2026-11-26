@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function signInAs(page: Page, name: string) {
   await page.goto("/login");
+  await page.getByText("Exploring Indicium? Use a sample account").click();
   await page.getByRole("button", { name: new RegExp(name) }).click();
   await expect(page.getByRole("heading", { name: "Worklist" })).toBeVisible();
 }

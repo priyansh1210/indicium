@@ -23,6 +23,7 @@ from indicium import observability
 from indicium.cases.store import load_request, set_status
 from indicium.config import settings
 from indicium.db import audit, make_pool
+from indicium.mail import run_sender
 from indicium.policies.store import load_version, published_for_code
 from indicium.review.engine import ReviewOutcome, review
 from indicium.review.providers import Provider, provider_from_settings
@@ -273,6 +274,11 @@ def main(argv: list[str] | None = None) -> int:
     stop = threading.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, lambda *_: stop.set())
+    if not args.once:  # email rides along on its own thread and connection, so a long review
+        # never holds up a password reset, and a mail outage never stops reviews
+        mail_pool = make_pool()
+        mail_pool.open()
+        threading.Thread(target=run_sender, args=(mail_pool, stop), daemon=True).start()
     done = run_worker(stop, once=args.once)
     log.info("processed %s reviews", done)
     return 0

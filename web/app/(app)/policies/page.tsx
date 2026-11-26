@@ -3,6 +3,9 @@ import Link from "next/link";
 
 import { api } from "@/lib/api";
 import { moment } from "@/lib/format";
+import type { Principal } from "@/lib/types";
+
+import { PolicyUpload } from "./upload";
 
 export const metadata: Metadata = { title: "Policies" };
 
@@ -25,7 +28,7 @@ const STATUS_STYLE = {
 };
 
 export default async function PoliciesPage() {
-  const versions = await api<Version[]>("/policies");
+  const [versions, me] = await Promise.all([api<Version[]>("/policies"), api<Principal>("/auth/me")]);
   const byPolicy = [...Map.groupBy(versions, (v) => v.policy_id).values()];
   return (
     <div className="space-y-8">
@@ -36,6 +39,7 @@ export default async function PoliciesPage() {
           sentence it comes from. Only the published version of a policy is used for reviews.
         </p>
       </div>
+      {me.role === "admin" && <PolicyUpload />}
       {byPolicy.length === 0 ? (
         <p className="sheet bg-tint px-6 py-12 text-center text-ink-2">
           No policies are loaded. Load one with{" "}

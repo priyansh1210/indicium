@@ -18,7 +18,7 @@ const SOURCE = "https://github.com/priyansh1210/indicium";
 
 export default async function Welcome() {
   const signedIn = (await cookies()).has(SESSION_COOKIE);
-  const cta = signedIn ? { href: "/", label: "Open the worklist" } : { href: "/login", label: "Open the demo" };
+  const cta = signedIn ? { href: "/", label: "Open the worklist" } : { href: "/login", label: "Sign in" };
 
   return (
     <div data-landing suppressHydrationWarning className="overflow-x-clip">

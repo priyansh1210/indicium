@@ -109,9 +109,17 @@ docker compose up --build --wait
 ```
 
 Open http://localhost:8080. Visitors without a session land on a short tour of how a review
-works, with a live example; "Open the demo" offers one-click sign-ins for each role. The
-demo loads the four policies and the 48 synthetic cases, and the worker reviews them with the
-keyless baseline (retrieval only; it highlights evidence and never approves on its own).
+works, with a live example. On the sign-in page, "Exploring Indicium? Use a sample account"
+offers one sign-in per role. The demo loads the four policies and the 48 synthetic cases, and
+the worker reviews them with the keyless baseline (retrieval only; it highlights evidence and
+never approves on its own).
+
+Accounts work as they would in production: an admin invites people from Admin → People, each
+person chooses their own password from the emailed link, can reset a forgotten one and can turn
+on two-step sign-in (an authenticator app). Locally every email lands in Mailpit at
+http://localhost:8025; set `INDICIUM_SMTP_URL` to send real mail. The first admin of a real
+deployment is created from the command line:
+`INDICIUM_PASSWORD=... python -m indicium.api.users create EMAIL "NAME" admin`.
 
 ### With a language model
 

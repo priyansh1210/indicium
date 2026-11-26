@@ -1,6 +1,8 @@
 """Policy routes: list, read, add a draft version, publish."""
 
+import yaml
 from fastapi import APIRouter, HTTPException, Response
+from pydantic import BaseModel, Field, ValidationError
 
 from indicium.api.auth import Manager, Reader
 from indicium.db import Db
@@ -46,6 +48,25 @@ def add_version(policy: Policy, principal: Manager, db: Db, response: Response) 
     if not created:
         response.status_code = 200
     return {"version_id": version_id, "created": created}
+
+
+class PolicyFile(BaseModel):
+    yaml: str = Field(min_length=10, max_length=2_000_000)
+
+
+@router.post("/yaml", status_code=201)
+def add_version_from_file(body: PolicyFile, principal: Manager, db: Db, response: Response) -> dict:
+    """The same as adding a version, from the text of a policy file (data/policies/*.yaml)."""
+    try:
+        policy = Policy.model_validate(yaml.safe_load(body.yaml))
+    except yaml.YAMLError as error:
+        raise HTTPException(422, f"Not readable as YAML: {error}") from error
+    except ValidationError as error:
+        problems = "; ".join(
+            f"{'.'.join(map(str, e['loc'])) or 'file'}: {e['msg']}" for e in error.errors()[:5]
+        )
+        raise HTTPException(422, f"Not a valid policy. {problems}") from error
+    return add_version(policy, principal, db, response)
 
 
 @router.post("/versions/{version_id}/publish")
