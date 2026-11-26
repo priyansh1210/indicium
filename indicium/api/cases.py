@@ -9,6 +9,7 @@ from psycopg import Connection
 from pydantic import BaseModel, Field, ValidationError
 
 from indicium.api.auth import Decider, Principal, Reader, Reviewer, Submitter
+from indicium.api.portal import notify_practice
 from indicium.cases.fhir import FhirError, request_from_bundle
 from indicium.cases.model import CaseRequest, ClinicalDocument
 from indicium.cases.store import DuplicateRequest, add_documents, create_case, set_status
@@ -30,7 +31,7 @@ class Submitted(BaseModel):
 
 def _intake(db: Connection, request: CaseRequest, principal: Principal, response: Response):
     try:
-        case_id, created = create_case(db, request, principal.actor)
+        case_id, created = create_case(db, request, principal.actor, principal.organization_id)
     except DuplicateRequest as error:
         raise HTTPException(409, str(error)) from error
     if created:  # queued in the same transaction, so no case is ever left unreviewed
@@ -43,12 +44,20 @@ def _intake(db: Connection, request: CaseRequest, principal: Principal, response
 
 
 def _check_owner(db: Connection, case_id: int, principal: Principal, status: int) -> None:
-    """An API key (one submitting system) may act only on the cases it submitted. Anything else
-    answers as if the case did not exist (404) or the id were taken (409): no probing of ids."""
-    if principal.kind != "api_key":
+    """An API key (one submitting system) may act only on the cases it submitted, and a practice
+    only on its own. Anything else answers as if the case did not exist (404) or the id were
+    taken (409): no probing of ids."""
+    if principal.kind != "api_key" and principal.role != "provider":
         return
-    owner = db.execute("select created_by from app.cases where case_id = %s", (case_id,)).fetchone()
-    if owner is None or owner["created_by"] != principal.actor:
+    owner = db.execute(
+        "select created_by, organization_id from app.cases where case_id = %s", (case_id,)
+    ).fetchone()
+    mine = owner is not None and (
+        owner["organization_id"] == principal.organization_id
+        if principal.role == "provider"
+        else owner["created_by"] == principal.actor
+    )
+    if not mine:
         if status == 404:
             raise HTTPException(404, "No such case")
         raise HTTPException(409, "That external id is already used by another submitter")
@@ -372,6 +381,7 @@ def decide(case_id: int, body: DecisionIn, principal: Decider, db: Db) -> dict:
         principal.actor,
         {"decision_id": decision_id, "recommendation": recommendation, "against": against},
     )
+    notify_practice(db, case_id, body.outcome, body.reason.strip())
     return {"decision_id": decision_id, "status": body.outcome, "against_recommendation": against}
 
 

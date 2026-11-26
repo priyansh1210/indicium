@@ -40,3 +40,21 @@ test("account and administration screens fit the viewport", async ({ page }) => 
     await fits(page);
   }
 });
+
+test("provider portal screens fit the viewport", async ({ page }) => {
+  await page.goto("/register");
+  await fits(page);
+  await page.goto("/login");
+  await page.getByText("Exploring Indicium? Use a sample account").click();
+  await page.getByRole("button", { name: /Sam Okafor/ }).click();
+  await expect(page.getByRole("heading", { name: "Requests" })).toBeVisible();
+  await fits(page);
+  await page.locator("main ul li a").first().click();
+  await expect(page.getByRole("heading", { name: "History" })).toBeVisible();
+  await fits(page);
+  for (const path of ["/portal/new", "/portal/team", "/account"]) {
+    await page.goto(path);
+    await expect(page.locator("h1")).toBeVisible();
+    await fits(page);
+  }
+});

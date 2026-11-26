@@ -16,16 +16,32 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 sm:gap-8 sm:px-6">
           <Wordmark />
           <nav aria-label="Main" className="flex items-center gap-1 sm:gap-4">
-            <NavLink href="/" icon="worklist">
-              Worklist
-            </NavLink>
-            <NavLink href="/policies" icon="document">
-              Policies
-            </NavLink>
-            {me.role === "admin" && (
-              <NavLink href="/admin" icon="users">
-                Admin
-              </NavLink>
+            {me.role === "provider" ? (
+              <>
+                <NavLink href="/portal" icon="inbox">
+                  Requests
+                </NavLink>
+                <NavLink href="/portal/new" icon="plus">
+                  New request
+                </NavLink>
+                <NavLink href="/portal/team" icon="users">
+                  Team
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink href="/" icon="worklist">
+                  Worklist
+                </NavLink>
+                <NavLink href="/policies" icon="document">
+                  Policies
+                </NavLink>
+                {me.role === "admin" && (
+                  <NavLink href="/admin" icon="users">
+                    Admin
+                  </NavLink>
+                )}
+              </>
             )}
           </nav>
           <div className="ml-auto flex items-center gap-4">

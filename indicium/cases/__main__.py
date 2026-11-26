@@ -2,6 +2,7 @@
 
 python -m indicium.cases check data/cases     validate the labelled dataset against its policies
 python -m indicium.cases load data/cases      store and queue the dataset's requests (demo data)
+    --sample-practice                         as requests from the demo's sample practice
 """
 
 import argparse
@@ -11,6 +12,7 @@ from pathlib import Path
 import psycopg
 from psycopg.rows import dict_row
 
+from indicium.api.users import demo_practice
 from indicium.cases.dataset import check_case, read_cases
 from indicium.cases.store import DuplicateRequest, create_case
 from indicium.config import settings
@@ -23,6 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("command", choices=["check", "load"])
     parser.add_argument("root", type=Path)
     parser.add_argument("--policies", type=Path, default=Path("data/policies"))
+    parser.add_argument("--sample-practice", action="store_true")
     args = parser.parse_args(argv)
     cases = read_cases(args.root)
 
@@ -39,10 +42,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if failed else 0
 
     with psycopg.connect(settings().database_url, row_factory=dict_row) as conn:
+        practice = demo_practice(conn) if args.sample_practice else None
         created = 0
         for case in cases:
             try:
-                case_id, new = create_case(conn, case.request, "system:dataset-loader")
+                case_id, new = create_case(conn, case.request, "system:dataset-loader", practice)
                 if new:  # a new case is queued for review in the same transaction
                     enqueue(conn, case_id, "system:dataset-loader")
                 created += new

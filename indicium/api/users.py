@@ -2,7 +2,8 @@
 
 python -m indicium.api.users create EMAIL NAME ROLE      reads the password from INDICIUM_PASSWORD
 python -m indicium.api.users api-key NAME                prints a new key once
-python -m indicium.api.users seed-demo                   one sign-in per role (demo only)
+python -m indicium.api.users seed-demo                   one sign-in per role and a sample
+                                                         practice (demo only)
 """
 
 import argparse
@@ -26,26 +27,49 @@ DEMO = [
 ]
 
 
-# Roles a person on the reviewing side can hold (API keys are "intake").
+# Roles a person on the reviewing side can hold (API keys are "intake"; "provider" people
+# belong to a practice and come from registration or a colleague's invitation).
 STAFF_ROLES = {"viewer", "nurse", "physician", "supervisor", "admin"}
+# The demo's sample practice. The NPI passes the check digit and is the CMS documentation example.
+DEMO_PRACTICE = ("Riverside Health Partners", "1234567893")
+DEMO_PROVIDER = ("office@riverside.demo.indicium", "Sam Okafor", "provider")
 
 
-def create_user(conn, email: str, name: str, role: str, password: str, actor: str) -> int:
+def create_user(
+    conn,
+    email: str,
+    name: str,
+    role: str,
+    password: str,
+    actor: str,
+    organization_id: int | None = None,
+) -> int:
     """A ready account with a known password (for the first admin, set up from the command line).
     Everyone else is invited from the admin screens and picks their own password."""
-    if role not in STAFF_ROLES:
+    if role not in STAFF_ROLES and not (role == "provider" and organization_id):
         raise ValueError(f"role must be one of {', '.join(sorted(STAFF_ROLES))}, not {role!r}")
     if len(password) < 12:
         raise ValueError("passwords need at least 12 characters")
     row = conn.execute(
-        "insert into app.users (email, name, role, password_hash, email_verified_at)"
-        " values (%s, %s, %s, %s, now())"
+        "insert into app.users (email, name, role, password_hash, email_verified_at,"
+        " organization_id) values (%s, %s, %s, %s, now(), %s)"
         " on conflict (email) do nothing returning user_id",
-        (email.strip().lower(), name, role, hash_password(password)),
+        (email.strip().lower(), name, role, hash_password(password), organization_id),
     ).fetchone()
     if row:
         audit(conn, actor, "user.created", "user", row["user_id"], {"role": role})
     return row["user_id"] if row else 0
+
+
+def demo_practice(conn) -> int:
+    """The sample practice's id, created on first use."""
+    conn.execute(
+        "insert into app.organizations (name, npi) values (%s, %s) on conflict (npi) do nothing",
+        DEMO_PRACTICE,
+    )
+    return conn.execute(
+        "select organization_id from app.organizations where npi = %s", (DEMO_PRACTICE[1],)
+    ).fetchone()["organization_id"]
 
 
 def create_api_key(conn, name: str, actor: str) -> str:
@@ -83,6 +107,8 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
             for email, name, role in DEMO:
                 create_user(conn, email, name, role, DEMO_PASSWORD, "system:demo")
+            practice = demo_practice(conn)
+            create_user(conn, *DEMO_PROVIDER, DEMO_PASSWORD, "system:demo", practice)
             print(f"demo sign-ins ready ({len(DEMO)})")
     return 0
 

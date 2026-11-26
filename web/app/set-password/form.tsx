@@ -16,13 +16,15 @@ export function PasswordForm({ token, email }: { token: string; email: string })
       <p className="text-sm">
         <span className="text-ink-2">Account</span> <span className="font-semibold">{email}</span>
       </p>
-      <label className="block space-y-1.5">
-        <span className="text-sm font-semibold">New password</span>
-        <input name="password" type="password" autoComplete="new-password" required minLength={12} maxLength={200} className="field" aria-describedby="password-rule" />
-        <span id="password-rule" className="block text-[13px] text-ink-2">
+      <div className="space-y-1.5">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold">New password</span>
+          <input name="password" type="password" autoComplete="new-password" required minLength={12} maxLength={200} className="field" aria-describedby="password-rule" />
+        </label>
+        <p id="password-rule" className="text-[13px] text-ink-2">
           At least 12 characters. A phrase of a few words is easy to remember and hard to guess.
-        </span>
-      </label>
+        </p>
+      </div>
       <label className="block space-y-1.5">
         <span className="text-sm font-semibold">The same password again</span>
         <input name="confirm" type="password" autoComplete="new-password" required minLength={12} maxLength={200} className="field" />

@@ -25,6 +25,7 @@ PUBLIC = {
     "/auth/token",
     "/auth/password/set",
     "/auth/verify",
+    "/auth/register",
 }
 
 

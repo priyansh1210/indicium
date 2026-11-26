@@ -24,12 +24,13 @@ assert set(StaffRole.__args__) == STAFF_ROLES  # one list of roles, checked at i
 @router.get("/users")
 def list_users(principal: Manager, db: Db) -> list[dict]:
     return db.execute(
-        "select user_id, email, name, role, active, created_at, last_login_at,"
-        " totp_secret is not null as mfa_enabled,"
+        "select u.user_id, u.email, u.name, u.role, u.active, u.created_at, u.last_login_at,"
+        " u.totp_secret is not null as mfa_enabled, o.name as practice,"
         " case when not active then 'deactivated'"
         "   when password_hash is null then 'invited'"
         "   when email_verified_at is null then 'unverified' else 'active' end as state"
-        " from app.users order by active desc, name"
+        " from app.users u left join app.organizations o using (organization_id)"
+        " order by u.active desc, o.name nulls first, u.name"
     ).fetchall()
 
 
@@ -69,6 +70,8 @@ def change_user(user_id: int, body: UserChange, principal: Manager, db: Db) -> d
         raise HTTPException(404, "No such person")
     if user_id == principal.user_id:
         raise HTTPException(409, "You cannot change your own role or deactivate yourself")
+    if user["role"] == "provider" and body.role not in (None, "provider"):
+        raise HTTPException(409, "A practice's people keep the provider role; deactivate instead")
     changes = {k: v for k, v in body.model_dump().items() if v is not None and v != user[k]}
     if not changes:
         return {"user_id": user_id, "changed": {}}

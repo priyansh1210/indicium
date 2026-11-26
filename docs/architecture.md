@@ -131,7 +131,15 @@ person chooses a password from a one-use emailed link (only its hash is stored).
 same way and sign out every session. Two-step sign-in uses authenticator codes (RFC 6238), each
 accepted once. Changing a role or deactivating someone ends their sessions at once. Email is
 written to an outbox table in the same transaction as the change that causes it and sent by the
-worker, retried with backoff; a sent message keeps no body. Machine clients (an EHR or a provider portal)
+worker, retried with backoff; a sent message keeps no body.
+
+Practices use the provider portal. A practice registers itself (its NPI must pass the check
+digit; its first person confirms their email) and adds colleagues; its people have the
+`provider` role, which can submit requests and follow only its own practice's (`track`). They
+see the status in plain words, the history, the documents they sent and each decision's reason,
+never the checklist, the model's output or reviewers' notes. A pended request is answered by
+sending documents, which queues a new review. Each decision is emailed to the practice in the
+same transaction that records it. Machine clients (an EHR or a provider portal)
 use API keys that can only submit. Every route declares its permission, and a test fails if a
 new route is reachable without signing in.
 

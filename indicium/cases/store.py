@@ -16,7 +16,9 @@ class DuplicateRequest(Exception):
     """The external id (or a document id) is already used for different content."""
 
 
-def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int, bool]:
+def create_case(
+    conn: Connection, request: CaseRequest, actor: str, organization_id: int | None = None
+) -> tuple[int, bool]:
     """Store a request and its documents. Returns (case_id, created).
 
     Sending the same request again (same external id and content) returns the first case, so a
@@ -40,8 +42,8 @@ def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int
     hours = s.sla_expedited_hours if request.urgency == "expedited" else s.sla_standard_hours
     case_id = conn.execute(
         "insert into app.cases (external_id, request_hash, patient, procedure_code,"
-        " diagnosis_codes, urgency, requested_by, due_at, created_by)"
-        " values (%s, %s, %s, %s, %s, %s, %s, now() + %s, %s) returning case_id",
+        " diagnosis_codes, urgency, requested_by, due_at, created_by, organization_id)"
+        " values (%s, %s, %s, %s, %s, %s, %s, now() + %s, %s, %s) returning case_id",
         (
             request.external_id,
             digest,
@@ -52,6 +54,7 @@ def create_case(conn: Connection, request: CaseRequest, actor: str) -> tuple[int
             request.requested_by,
             timedelta(hours=hours),
             actor,
+            organization_id,
         ),
     ).fetchone()["case_id"]
     _insert_documents(conn, case_id, request.documents)

@@ -70,31 +70,31 @@ export function SignInForm({ next, notice, demoUsers }: { next: string; notice: 
           />
         </div>
         {state.mfa && (
-          <label className="rise block space-y-1.5">
-            <span className="text-sm font-semibold">Code from your authenticator app</span>
-            <input
-              name="code"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              pattern="[0-9 ]{6,7}"
-              maxLength={7}
-              required
-              autoFocus
-              className="field code tracking-[0.2em]"
-            />
-            <span className="block text-[13px] text-ink-2">Six digits. A new one appears every 30 seconds.</span>
-          </label>
+          <div className="rise space-y-1.5">
+            <label className="block space-y-1.5">
+              <span className="text-sm font-semibold">Code from your authenticator app</span>
+              <input
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9 ]{6,7}"
+                maxLength={7}
+                required
+                autoFocus
+                aria-describedby="code-help"
+                className="field code tracking-[0.2em]"
+              />
+            </label>
+            <p id="code-help" className="text-[13px] text-ink-2">
+              Six digits. A new one appears every 30 seconds.
+            </p>
+          </div>
         )}
         <FormMessage error={state.error} notice={state.error || state.mfa ? null : notice} />
         <button type="submit" disabled={pending} onClick={() => setChosen(null)} className="btn btn-primary w-full justify-center">
           {pending && !chosen ? "Signing in…" : state.mfa ? "Verify and sign in" : "Sign in"}
         </button>
       </form>
-
-      <p className="border-t border-rule pt-6 text-[14px] leading-relaxed text-ink-2">
-        Reviewer accounts are created by your organization&rsquo;s Indicium administrator. Ask them for an
-        invitation; it arrives by email with a link to choose your password.
-      </p>
 
       {demoUsers.length > 0 && (
         <details className="group border-t border-rule pt-6">

@@ -9,7 +9,7 @@ from psycopg import errors
 from psycopg_pool import PoolTimeout
 
 from indicium import observability
-from indicium.api import account, auth, cases, people, policies
+from indicium.api import account, auth, cases, people, policies, portal
 from indicium.config import settings
 from indicium.db import make_pool
 
@@ -74,6 +74,7 @@ app.add_middleware(observability.RequestContext)  # outermost: every response ge
 app.include_router(auth.router)
 app.include_router(account.router)
 app.include_router(people.router)
+app.include_router(portal.router)
 app.include_router(cases.router)
 app.include_router(policies.router)
 

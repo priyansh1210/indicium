@@ -185,11 +185,19 @@ export default async function Welcome() {
             </h2>
             <div data-reveal className="max-w-sm">
               <p className="text-paper/75">
-                Sign in as a nurse, physician, viewer or admin with one click. Every patient is synthetic.
+                Sample accounts on the sign-in page open each side: a nurse, a physician, a supervisor, an
+                admin, or a practice sending requests. Every patient is synthetic.
               </p>
-              <Link href={cta.href} className="btn mt-5 h-11 border-marker-strong bg-marker-strong px-5 text-[15px] text-ink hover:border-marker hover:bg-marker">
-                {cta.label}
-              </Link>
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Link href={cta.href} className="btn h-11 border-marker-strong bg-marker-strong px-5 text-[15px] text-ink hover:border-marker hover:bg-marker">
+                  {cta.label}
+                </Link>
+                {!signedIn && (
+                  <Link href="/register" className="text-[15px] font-semibold text-paper underline decoration-marker-strong decoration-2 underline-offset-[6px] hover:decoration-paper">
+                    Register a practice
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </section>

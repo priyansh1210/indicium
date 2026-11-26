@@ -32,6 +32,20 @@ export const ROLE_DUTY: Record<Role, string> = {
   viewer: "Reads cases, evidence and policies. Cannot change anything.",
   supervisor: "Watches the queue and its deadlines and assigns cases to reviewers. Does not decide cases.",
   admin: "Publishes policy versions and manages people and API keys. Does not decide cases.",
+  provider: "Sends requests for a practice, follows them and answers requests for more information.",
+};
+
+/** A request's status as the practice that sent it sees it: four plain states. */
+export const PORTAL_STATUS: Record<CaseStatus, { label: string; tone: string }> = {
+  received: { label: "In review", tone: "text-ink" },
+  queued: { label: "In review", tone: "text-ink" },
+  in_review: { label: "In review", tone: "text-ink" },
+  awaiting_nurse: { label: "In review", tone: "text-ink" },
+  failed: { label: "In review", tone: "text-ink" },
+  referred: { label: "In review", tone: "text-ink" },
+  pended: { label: "Needs information", tone: "text-missing" },
+  approved: { label: "Approved", tone: "text-met" },
+  denied: { label: "Denied", tone: "text-unmet" },
 };
 
 export const FLAG_LABEL: Record<string, string> = {

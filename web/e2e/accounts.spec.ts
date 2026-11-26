@@ -99,6 +99,7 @@ test("an admin invites a nurse, who sets a password, turns on two-step sign-in a
   await page.getByLabel("New password").fill("taylor-second-password");
   await page.getByLabel("The same password again").fill("taylor-second-password");
   await page.getByRole("button", { name: "Save password" }).click();
+  await expect(page.getByText("Your password is set. Sign in with it.")).toBeVisible();
   await signIn(page, email, "taylor-first-password");
   await expect(page.getByText("Wrong email or password")).toBeVisible();
 });

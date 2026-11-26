@@ -41,6 +41,21 @@ export async function confirmEmail(token: string): Promise<LinkState> {
   redirect("/login?notice=verified");
 }
 
+export async function registerPractice(_: LinkState, form: FormData): Promise<LinkState> {
+  if (form.get("password") !== form.get("confirm")) return { error: "The two passwords are not the same." };
+  const fields = ["practice", "npi", "name", "email", "password"] as const;
+  try {
+    const { detail } = await publicApi<{ detail: string }>(
+      "/auth/register",
+      // Trim what was typed, except the password: its spaces are part of it.
+      Object.fromEntries(fields.map((f) => [f, f === "password" ? form.get(f) : String(form.get(f) ?? "").trim()])),
+    );
+    return { error: null, notice: detail };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 /** Who a link belongs to, or null when it has expired or was used. */
 export async function inspectLink(token: string | undefined) {
   if (!token) return null;

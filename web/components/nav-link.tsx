@@ -15,7 +15,13 @@ export function NavLink({
   children: React.ReactNode;
 }) {
   const path = usePathname();
-  const current = href === "/" ? path === "/" || path.startsWith("/cases") : path.startsWith(href);
+  // "/" owns the case pages; "/portal" is current only on the list and a request, not on its siblings.
+  const current =
+    href === "/"
+      ? path === "/" || path.startsWith("/cases")
+      : href === "/portal"
+        ? path === "/portal" || path.startsWith("/portal/requests")
+        : path.startsWith(href);
   return (
     <Link
       href={href}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { RecommendationText } from "@/components/badges";
 import { Deadline } from "@/components/deadline";
@@ -35,6 +36,7 @@ export default async function Worklist({
 }) {
   const { view: requested, after } = await searchParams;
   const me = await api<Principal>("/auth/me");
+  if (me.role === "provider") redirect("/portal"); // a practice has its own front page
   const fallback = me.role === "physician" ? "referred" : "review";
   const view = VIEWS.find((v) => v.key === requested) ?? VIEWS.find((v) => v.key === fallback)!;
   const query = new URLSearchParams(view.statuses.map((s) => ["status", s]));

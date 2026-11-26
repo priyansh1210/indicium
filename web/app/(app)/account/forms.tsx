@@ -42,11 +42,13 @@ export function PasswordForm({ email }: { email: string }) {
         <span className="text-sm font-semibold">Current password</span>
         <input name="current_password" type="password" autoComplete="current-password" required className="field" />
       </label>
-      <label className="block space-y-1.5">
-        <span className="text-sm font-semibold">New password</span>
-        <input name="new_password" type="password" autoComplete="new-password" required minLength={12} maxLength={200} className="field" />
-        <span className="block text-[13px] text-ink-2">At least 12 characters.</span>
-      </label>
+      <div className="space-y-1.5">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold">New password</span>
+          <input aria-describedby="new-password-help" name="new_password" type="password" autoComplete="new-password" required minLength={12} maxLength={200} className="field" />
+        </label>
+        <p id="new-password-help" className="text-[13px] text-ink-2">At least 12 characters.</p>
+      </div>
       <label className="block space-y-1.5">
         <span className="text-sm font-semibold">New password again</span>
         <input name="confirm" type="password" autoComplete="new-password" required minLength={12} maxLength={200} className="field" />

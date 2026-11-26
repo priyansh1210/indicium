@@ -17,6 +17,7 @@ export type Person = {
   created_at: string;
   last_login_at: string | null;
   mfa_enabled: boolean;
+  practice: string | null;
   state: "active" | "invited" | "unverified" | "deactivated";
 };
 
@@ -71,7 +72,15 @@ export default async function PeoplePage() {
                       <span className="text-[13px] text-ink-2">{p.email}</span>
                     </td>
                     <td className="px-4 py-3 align-middle max-md:p-0">
-                      {self || !p.active ? <span className="capitalize">{p.role}</span> : <RoleSelect userId={p.user_id} role={p.role} name={p.name} />}
+                      {p.practice ? (
+                        <span>
+                          Provider <span className="block text-[13px] text-ink-2">{p.practice}</span>
+                        </span>
+                      ) : self || !p.active ? (
+                        <span className="capitalize">{p.role}</span>
+                      ) : (
+                        <RoleSelect userId={p.user_id} role={p.role} name={p.name} />
+                      )}
                     </td>
                     <td className={`px-4 py-3 align-middle font-semibold max-md:p-0 ${STATE[p.state].style}`}>{STATE[p.state].label}</td>
                     <td className="px-4 py-3 align-middle max-md:p-0">

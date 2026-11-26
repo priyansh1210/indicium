@@ -121,6 +121,11 @@ http://localhost:8025; set `INDICIUM_SMTP_URL` to send real mail. The first admi
 deployment is created from the command line:
 `INDICIUM_PASSWORD=... python -m indicium.api.users create EMAIL "NAME" admin`.
 
+Practices register themselves at /register and send requests from the provider portal: the
+order, the diagnoses and the clinical notes (pasted or loaded from a text file). They follow each
+request, read the reason for every decision, and answer a request for information with more
+documents. The sample practice account (Sam Okafor) sees the 48 demo requests.
+
 ### With a language model
 
 Any OpenAI-compatible endpoint works. For a local model with llama.cpp:

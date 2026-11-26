@@ -30,6 +30,7 @@ PERMISSIONS = {
     "physician": {"read", "submit", "review", "decide", "decide_referred"},
     "supervisor": {"read", "oversee", "assign"},
     "admin": {"read", "submit", "manage", "oversee"},
+    "provider": {"submit", "track"},  # a practice's staff, in the provider portal
     "intake": {"submit"},  # API keys
 }
 # Failed sign-ins within the window block further attempts for that email, and (with a higher
@@ -50,6 +51,7 @@ class Principal(BaseModel):
     email: str
     name: str
     role: str
+    organization_id: int | None = None  # the practice of a provider
 
     @property
     def actor(self) -> str:
@@ -100,7 +102,7 @@ def current_principal(request: Request, db: Db) -> Principal:
     user = (
         token
         and db.execute(
-            "select u.user_id, u.email, u.name, u.role from app.sessions s"
+            "select u.user_id, u.email, u.name, u.role, u.organization_id from app.sessions s"
             " join app.users u using (user_id)"
             " where s.token_hash = %s and s.expires_at > now() and u.active",
             (token_hash(token),),
@@ -133,6 +135,7 @@ Person = Annotated[Principal, Depends(signed_in_person)]
 Reader = Annotated[Principal, Depends(require("read"))]
 Submitter = Annotated[Principal, Depends(require("submit"))]
 Reviewer = Annotated[Principal, Depends(require("review"))]
+Tracker = Annotated[Principal, Depends(require("track"))]
 Decider = Annotated[Principal, Depends(require("decide"))]
 Manager = Annotated[Principal, Depends(require("manage"))]
 
@@ -183,8 +186,9 @@ def login(credentials: Login, request: Request, response: Response, db: Db) -> P
                 headers={"Retry-After": str(seconds)},
             )
     user = db.execute(
-        "select user_id, email, name, role, password_hash, email_verified_at, totp_secret,"
-        " totp_last_step from app.users where email = %s and active and password_hash is not null",
+        "select user_id, email, name, role, organization_id, password_hash, email_verified_at,"
+        " totp_secret, totp_last_step from app.users"
+        " where email = %s and active and password_hash is not null",
         (email,),
     ).fetchone()
     valid = verify_password(credentials.password, user["password_hash"] if user else _NO_SUCH_USER)
@@ -192,7 +196,11 @@ def login(credentials: Login, request: Request, response: Response, db: Db) -> P
         _record_failed_login(request, email, ip)
         raise HTTPException(401, "Wrong email or password")
     if user["email_verified_at"] is None:
-        raise HTTPException(403, "Confirm your email address first: open the link we sent you.")
+        raise HTTPException(
+            403,
+            "Confirm your email address first: open the link we sent you. Lost it? "
+            "Forgot your password? sends a new link, and that confirms the address too.",
+        )
     if user["totp_secret"]:
         if not credentials.code:
             raise HTTPException(401, MFA_REQUIRED)
@@ -223,7 +231,8 @@ def login(credentials: Login, request: Request, response: Response, db: Db) -> P
         samesite="strict",  # never sent on a request another site starts
         secure=settings().cookie_secure,
     )
-    return Principal(kind="user", **{k: user[k] for k in ("user_id", "email", "name", "role")})
+    fields = ("user_id", "email", "name", "role", "organization_id")
+    return Principal(kind="user", **{k: user[k] for k in fields})
 
 
 @router.post("/logout", status_code=204)
@@ -244,4 +253,4 @@ def demo_users(db: Db) -> list[dict]:
     if not settings().demo_users:
         return []
     rows = db.execute("select email, name, role from app.users order by user_id").fetchall()
-    return [r | {"password": DEMO_PASSWORD} for r in rows if r["email"].endswith("@demo.indicium")]
+    return [r | {"password": DEMO_PASSWORD} for r in rows if r["email"].endswith("demo.indicium")]
