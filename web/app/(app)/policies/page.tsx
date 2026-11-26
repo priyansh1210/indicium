@@ -42,8 +42,9 @@ export default async function PoliciesPage() {
       {me.role === "admin" && <PolicyUpload />}
       {byPolicy.length === 0 ? (
         <p className="sheet bg-tint px-6 py-12 text-center text-ink-2">
-          No policies are loaded. Load one with{" "}
-          <span className="code">python -m indicium.policies load --publish data/policies/*.yaml</span>.
+          {me.role === "admin"
+            ? "No policies yet. Upload a policy file above; it is kept as a draft until you publish it."
+            : "No policies are published yet. An administrator adds them; until then, cases have no checklist."}
         </p>
       ) : (
         <ul className="border-t border-rule">

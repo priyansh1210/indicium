@@ -81,6 +81,10 @@ Status colours appear only with their word beside them, never as decoration.
   use the one chart hue; counts are meter rows on one baseline; the daily columns are drawn at
   the width they are shown at and keep a table of the same values; recommendation against
   decision is a matrix whose followed cells are outlined. Every chart carries its period in words.
+- States: while a screen loads, still grey shapes of a title and a list sit under the top bar
+  (no shimmer: nothing loops). An empty list says why it is empty and the next step for that
+  role. Not found and errors name what happened and offer one way on; an error shows the
+  server's reference, never its message.
 - Sheets: white, radius 12, one hairline border; no nested cards, no shadows. Hairline rules
   and proximity group things before a sheet does.
 

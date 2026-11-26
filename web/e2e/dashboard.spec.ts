@@ -29,5 +29,5 @@ test("a supervisor reads the queue and the decisions; a nurse has no dashboard",
   await sampleSignIn(page, /Avery Nurse/);
   await expect(page.getByRole("link", { name: "Dashboard" })).toHaveCount(0);
   await page.goto("/dashboard");
-  await expect(page.getByText(/could not be found|not found/i).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
 });
