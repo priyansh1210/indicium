@@ -68,8 +68,11 @@ Status colours appear only with their word beside them, never as decoration.
   admin tabs People, API keys, Activity. Hard-to-undo buttons ask once more in place
   ("Confirm deactivate") instead of a dialog. Secrets and links shown once sit in a field with
   Copy.
-- Top bar: wordmark, Worklist, Dashboard (supervisor and admin), Policies; the signed-in person
-  and role at the right.
+- Top bar: wordmark, Worklist, Dashboard (supervisor and admin), Policies; at the right a bell
+  (nurses, physicians and practices: the only roles that are notified) with an unread count in
+  the accent, the signed-in person and role, Sign out.
+- Notifications: one list, newest first; unread in bold with an accent dot, read in grey. A row
+  opens its case and is read from then on.
 - Worklist: tabs by status with counts, then one table, soonest deadline first. Each deadline
   has a bar of the decision window used (amber in the last quarter, red when overdue). The
   whole row opens the case. The status column appears only when a view mixes statuses. On a

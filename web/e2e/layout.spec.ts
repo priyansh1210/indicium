@@ -55,7 +55,7 @@ test("provider portal screens fit the viewport", async ({ page }) => {
   await page.locator("main ul li a").first().click();
   await expect(page.getByRole("heading", { name: "History" })).toBeVisible();
   await fits(page);
-  for (const path of ["/portal/new", "/portal/team", "/account"]) {
+  for (const path of ["/portal/new", "/portal/team", "/account", "/notifications"]) {
     await page.goto(path);
     await expect(page.locator("h1")).toBeVisible();
     await fits(page);

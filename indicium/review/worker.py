@@ -20,6 +20,7 @@ from psycopg import Connection
 from psycopg.types.json import Jsonb
 
 from indicium import observability
+from indicium.api.notifications import sweep
 from indicium.cases.store import load_request, set_status
 from indicium.config import settings
 from indicium.db import audit, make_pool
@@ -32,6 +33,7 @@ from indicium.review.rules import Decision
 log = logging.getLogger("indicium.worker")
 tracer = observability.tracer
 ACTOR = "system:review-worker"
+SWEEP_SECONDS = 60  # how often an idle worker looks for deadlines within a day
 
 
 def enqueue(conn: Connection, case_id: int, actor: str) -> int:
@@ -245,11 +247,15 @@ def run_worker(stop: threading.Event, once: bool = False) -> int:
     """Process runs until stopped (or, with once, until none is available). Returns the count."""
     s = settings()
     provider = provider_from_settings(s)
-    done, run = 0, None
+    done, run, swept = 0, None, 0.0
     with make_pool() as pool:
         pool.wait()
         while not stop.is_set():
             try:
+                if time.monotonic() - swept >= SWEEP_SECONDS:  # busy or idle, deadlines are noticed
+                    with pool.connection() as conn:
+                        sweep(conn)
+                    swept = time.monotonic()
                 with pool.connection() as conn:
                     run = claim(conn, s.worker_lease_seconds)
                 if run is not None:

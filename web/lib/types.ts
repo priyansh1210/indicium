@@ -148,3 +148,19 @@ export type AuditEvent = {
   target_id: string;
   detail: Record<string, unknown>;
 };
+
+// The roles that receive notifications; the others have no bell.
+export const NOTIFIED: Role[] = ["nurse", "physician", "provider"];
+export type NotificationKind = "assigned" | "documents" | "due_soon" | "decided";
+export type Notice = {
+  notification_id: number;
+  kind: NotificationKind;
+  case_id: number;
+  created_at: string;
+  read_at: string | null;
+  external_id: string;
+  patient: string;
+  procedure_code: string;
+  status: CaseStatus;
+  due_at: string;
+};

@@ -1,15 +1,19 @@
 import Link from "next/link";
 
+import { Bell } from "@/components/bell";
 import { Icon } from "@/components/icons";
 import { NavLink } from "@/components/nav-link";
 import { Wordmark } from "@/components/wordmark";
 import { api } from "@/lib/api";
-import type { Principal } from "@/lib/types";
+import { NOTIFIED, type Principal } from "@/lib/types";
 
 import { signOut } from "../login/actions";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const me = await api<Principal>("/auth/me");
+  const [me, { unread }] = await Promise.all([
+    api<Principal>("/auth/me"),
+    api<{ unread: number }>("/notifications/unread"),
+  ]);
   return (
     <div className="min-h-dvh">
       <header className="border-b border-rule bg-paper">
@@ -49,8 +53,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </>
             )}
           </nav>
-          <div className="ml-auto flex items-center gap-4">
-            <Link href="/account" className="flex items-center gap-2 rounded-md px-2 py-1 text-right text-[13px] leading-tight hover:bg-tint">
+          <div className="ml-auto flex items-center gap-2 sm:gap-4">
+            {NOTIFIED.includes(me.role) && <Bell unread={unread} />}
+            <Link
+              href="/account"
+              className="flex items-center gap-2 rounded-md px-2 py-1 text-right text-[13px] leading-tight hover:bg-tint"
+            >
               <span className="hidden sm:block">
                 <span className="block font-semibold">{me.name}</span>
                 <span className="text-ink-2 capitalize">{me.role}</span>

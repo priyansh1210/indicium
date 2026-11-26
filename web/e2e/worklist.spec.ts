@@ -37,12 +37,12 @@ test("a supervisor hands a case to a reviewer, seeing their workload", async ({ 
   await page.locator("tbody tr td a").first().click();
   const picker = page.getByLabel("Assigned to");
   await expect(picker).toContainText(/Avery Nurse \(nurse\), \d+ open/);
-  await picker.selectOption({ label: (await picker.locator("option", { hasText: "Avery Nurse" }).textContent())! });
-  await page.waitForLoadState("networkidle");
+  const avery = (await picker.locator("option", { hasText: "Avery Nurse" }).textContent())!;
+  // Wait for the save itself: network idle can come before the form has even been sent.
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), picker.selectOption({ label: avery })]);
   await page.reload(); // the choice is saved, not just shown
   await expect(picker.locator("option:checked")).toContainText("Avery Nurse");
-  await picker.selectOption("");
-  await page.waitForLoadState("networkidle");
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), picker.selectOption("")]);
   await page.reload();
   await expect(picker.locator("option:checked")).toHaveText("Nobody");
 });

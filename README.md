@@ -131,6 +131,10 @@ what is past its deadline, decisions per day, how often reviewers followed the r
 each reviewer's load, and how the automated review is doing, over the last 7, 30 or 90 days.
 Every figure is computed from the cases and decisions themselves, so it cannot drift from them.
 
+Reviewers and practices have notifications behind a bell in the top bar: a case handed to you,
+documents arriving on a case you hold or decided, a case of yours due within a day, and, for a
+practice, a decision on its request.
+
 ### With a language model
 
 Any OpenAI-compatible endpoint works. For a local model with llama.cpp:

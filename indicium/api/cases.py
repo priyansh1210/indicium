@@ -9,6 +9,7 @@ from psycopg import Connection, sql
 from pydantic import BaseModel, Field, ValidationError
 
 from indicium.api.auth import Decider, Principal, Reader, Reviewer, Submitter
+from indicium.api.notifications import notify
 from indicium.api.portal import notify_practice
 from indicium.cases.fhir import FhirError, request_from_bundle
 from indicium.cases.model import CaseRequest, ClinicalDocument
@@ -479,7 +480,7 @@ class DocumentsIn(BaseModel):
 def attach(case_id: int, body: DocumentsIn, principal: Submitter, db: Db) -> dict:
     """Add documents (for example, the information a pended case asked for) and review again."""
     case = db.execute(
-        "select status from app.cases where case_id = %s for update", (case_id,)
+        "select status, assigned_to from app.cases where case_id = %s for update", (case_id,)
     ).fetchone()
     if not case:
         raise HTTPException(404, "No such case")
@@ -491,6 +492,14 @@ def attach(case_id: int, body: DocumentsIn, principal: Submitter, db: Db) -> dic
     except DuplicateRequest as error:
         raise HTTPException(409, str(error)) from error
     run_id = enqueue(db, case_id, principal.actor)
+    # Whoever holds the case hears of it; with nobody holding it, whoever last decided it.
+    last = db.execute(
+        "select user_id from app.decisions where case_id = %s order by decision_id desc limit 1",
+        (case_id,),
+    ).fetchone()
+    holder = case["assigned_to"] or (last and last["user_id"])
+    if holder and holder != principal.user_id:
+        notify(db, [holder], "documents", case_id)
     return {"run_id": run_id, "status": "queued"}
 
 
@@ -552,6 +561,8 @@ def assign(case_id: int, body: AssignIn, principal: Reader, db: Db) -> dict:
         case_id,
         {"from": case["assigned_to"], "to": body.user_id},
     )
+    if body.user_id is not None and body.user_id != principal.user_id:
+        notify(db, [body.user_id], "assigned", case_id)
     return {"case_id": case_id, "assigned_to": body.user_id}
 
 

@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from indicium.api.account import Password, send_invite, send_verification
 from indicium.api.auth import Tracker, hash_password
+from indicium.api.notifications import notify
 from indicium.db import Db, audit
 from indicium.mail import link, queue_email
 
@@ -231,10 +232,11 @@ def notify_practice(db: Connection, case_id: int, outcome: str, reason: str) -> 
     if not case["organization_id"]:
         return
     people = db.execute(
-        "select email, name from app.users where organization_id = %s and active"
+        "select user_id, email, name from app.users where organization_id = %s and active"
         " and email_verified_at is not null",
         (case["organization_id"],),
     ).fetchall()
+    notify(db, [p["user_id"] for p in people], "decided", case_id)
     for person in people:
         queue_email(
             db,

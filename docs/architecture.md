@@ -139,7 +139,13 @@ digit; its first person confirms their email) and adds colleagues; its people ha
 see the status in plain words, the history, the documents they sent and each decision's reason,
 never the checklist, the model's output or reviewers' notes. A pended request is answered by
 sending documents, which queues a new review. Each decision is emailed to the practice in the
-same transaction that records it. Machine clients (an EHR or a provider portal)
+same transaction that records it, with an in-app notification beside it.
+
+Notifications name only the person, the kind and the case; their words are made when they are
+read, so no patient detail is copied. Each is written in the transaction of the change that
+causes it (an assignment, documents arriving, a decision). Deadlines within a day are found by
+a sweep every worker runs each minute; a unique index keeps it to one per person and case, so
+any number of workers can run it. Read notifications are forgotten after 90 days. Machine clients (an EHR or a provider portal)
 use API keys that can only submit. Every route declares its permission, and a test fails if a
 new route is reachable without signing in.
 
