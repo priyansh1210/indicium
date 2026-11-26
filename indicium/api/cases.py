@@ -5,7 +5,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Body, HTTPException, Query, Response
 from fastapi.exceptions import RequestValidationError
-from psycopg import Connection
+from psycopg import Connection, sql
 from pydantic import BaseModel, Field, ValidationError
 
 from indicium.api.auth import Decider, Principal, Reader, Reviewer, Submitter
@@ -85,13 +85,71 @@ def submit_fhir(
 
 @router.get("/summary")
 def summary(principal: Reader, db: Db) -> dict:
-    """How many cases are in each status, and how many open ones are past their deadline."""
+    """How many cases are in each status, how many open ones are past their deadline, and how
+    many open ones are assigned to the person asking."""
     counts = db.execute("select status, count(*) as n from app.cases group by status").fetchall()
-    overdue = db.execute(
-        "select count(*) as n from app.cases"
-        " where due_at < now() and status not in ('approved', 'denied')"
-    ).fetchone()["n"]
-    return {"by_status": {r["status"]: r["n"] for r in counts}, "overdue": overdue}
+    totals = db.execute(
+        "select count(*) filter (where due_at < now()) as overdue,"
+        " count(*) filter (where assigned_to = %s) as mine"
+        " from app.cases where status not in ('approved', 'denied')",
+        (principal.user_id,),
+    ).fetchone()
+    return {"by_status": {r["status"]: r["n"] for r in counts}, **totals}
+
+
+@router.get("/reviewers")
+def reviewers(principal: Reader, db: Db) -> list[dict]:
+    """People who can be given cases, with how many open cases each holds (their workload)."""
+    if "assign" not in principal.permissions:
+        raise HTTPException(403, f"Your role ({principal.role}) cannot do this")
+    return db.execute(
+        "select u.user_id, u.name, u.role, count(c.case_id) as open_cases,"
+        " count(c.case_id) filter (where c.due_at < now() + interval '24 hours') as due_soon"
+        " from app.users u left join app.cases c on c.assigned_to = u.user_id"
+        "   and c.status not in ('approved', 'denied')"
+        " where u.active and u.role in ('nurse', 'physician')"
+        " group by u.user_id order by u.role, u.name"
+    ).fetchall()
+
+
+# Each sort: the order, and the keyset condition that continues after the previous page's last
+# row. The cursor carries that row's sort value and case id.
+SORTS = {
+    "due": (
+        sql.SQL("c.due_at, c.case_id"),
+        sql.SQL("(c.due_at, c.case_id) > (%(at)s, %(id)s)"),
+        "due_at",
+    ),
+    "received": (
+        sql.SQL("c.received_at desc, c.case_id desc"),
+        sql.SQL("(c.received_at, c.case_id) < (%(at)s, %(id)s)"),
+        "received_at",
+    ),
+}
+WORKLIST = sql.SQL(
+    "select c.case_id, c.external_id, c.patient->>'name' as patient_name, c.procedure_code,"
+    " c.urgency, c.status, c.requested_by, c.received_at, c.due_at,"
+    " c.due_at < now() as overdue, c.assigned_to, a.name as assigned_name,"
+    " r.run_id, r.recommendation, r.flags, v.title as policy_title"
+    " from app.cases c"
+    " left join app.users a on a.user_id = c.assigned_to"
+    " left join lateral (select * from review.runs where case_id = c.case_id"
+    "   and status = 'done' order by run_id desc limit 1) r on true"
+    " left join policy.versions v on v.version_id = r.policy_version_id"
+    " where (%(status)s::text[] is null or c.status = any(%(status)s))"
+    " and (%(urgency)s::text is null or c.urgency = %(urgency)s)"
+    # shortcut: search scans the open cases with ilike; add a pg_trgm index when the table
+    # holds hundreds of thousands of cases.
+    " and (%(q)s::text is null or c.case_id::text = %(q)s or c.external_id ilike %(like)s"
+    "   or c.patient->>'name' ilike %(like)s or c.patient->>'member_id' ilike %(like)s"
+    "   or c.procedure_code ilike %(like)s or v.title ilike %(like)s)"
+    " and (%(assignee)s::bigint is null or c.assigned_to = %(assignee)s)"
+    " and (not %(unassigned)s or c.assigned_to is null)"
+    " and (not %(flagged)s or cardinality(r.flags) > 0)"
+    " and (%(within)s::int is null or c.due_at < now() + make_interval(hours => %(within)s))"
+    " and (%(at)s::timestamptz is null or {after})"
+    " order by {order} limit %(limit)s"
+)
 
 
 @router.get("")
@@ -100,39 +158,60 @@ def worklist(
     db: Db,
     status: Annotated[list[str] | None, Query()] = None,
     urgency: Literal["standard", "expedited"] | None = None,
+    q: Annotated[str | None, Query(max_length=100)] = None,
+    assigned: Annotated[str | None, Query(pattern=r"^(me|none|[0-9]+)$")] = None,
+    flagged: bool = False,
+    due_within_hours: Annotated[int | None, Query(ge=1, le=24 * 30)] = None,
+    sort: Literal["due", "received"] = "due",
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     after: str | None = None,
 ) -> dict:
-    """Cases by deadline, soonest first. Page with `after` (the previous page's `next`)."""
-    cursor_due, cursor_id = _cursor(after)
+    """Open work, filtered and sorted: soonest deadline first by default, or newest first.
+    Page with `after` (the previous page's `next`)."""
+    order, after_sql, key = SORTS[sort]
+    cursor_at, cursor_id = _cursor(after)
+    q = (q or "").strip() or None
+    like = None if q is None else _like(q)
     rows = db.execute(
-        "select c.case_id, c.external_id, c.patient->>'name' as patient_name, c.procedure_code,"
-        " c.urgency, c.status, c.requested_by, c.received_at, c.due_at,"
-        " c.due_at < now() as overdue,"
-        " r.run_id, r.recommendation, r.flags, v.title as policy_title"
-        " from app.cases c"
-        " left join lateral (select * from review.runs where case_id = c.case_id"
-        "   and status = 'done' order by run_id desc limit 1) r on true"
-        " left join policy.versions v on v.version_id = r.policy_version_id"
-        " where (%(status)s::text[] is null or c.status = any(%(status)s))"
-        " and (%(urgency)s::text is null or c.urgency = %(urgency)s)"
-        " and (%(due)s::timestamptz is null or (c.due_at, c.case_id) > (%(due)s, %(id)s))"
-        " order by c.due_at, c.case_id limit %(limit)s",
-        {"status": status, "urgency": urgency, "due": cursor_due, "id": cursor_id, "limit": limit},
+        WORKLIST.format(after=after_sql, order=order),
+        {
+            "status": status,
+            "urgency": urgency,
+            "q": q,
+            "like": like,
+            "assignee": principal.user_id if assigned == "me" else _int_or_none(assigned),
+            "unassigned": assigned == "none",
+            "flagged": flagged,
+            "within": due_within_hours,
+            "at": cursor_at,
+            "id": cursor_id,
+            "limit": limit,
+        },
     ).fetchall()
     last = rows[-1] if len(rows) == limit else None
     return {
         "cases": rows,
-        "next": f"{last['due_at'].isoformat()}|{last['case_id']}" if last else None,
+        "next": f"{last[key].isoformat()}|{last['case_id']}" if last else None,
     }
+
+
+def _like(text: str) -> str:
+    """An ilike pattern that finds the text anywhere, with % and _ taken literally."""
+    for char in ("\\", "%", "_"):
+        text = text.replace(char, "\\" + char)
+    return f"%{text}%"
+
+
+def _int_or_none(value: str | None) -> int | None:
+    return int(value) if value and value.isdigit() else None
 
 
 def _cursor(after: str | None) -> tuple[datetime | None, int | None]:
     if not after:
         return None, None
     try:
-        due, _, case_id = after.rpartition("|")
-        return datetime.fromisoformat(due), int(case_id)
+        at, _, case_id = after.rpartition("|")
+        return datetime.fromisoformat(at), int(case_id)
     except ValueError as error:
         raise HTTPException(400, "Invalid page cursor") from error
 
@@ -216,6 +295,10 @@ def detail(case_id: int, principal: Reader, db: Db) -> dict:
     if policy is None:  # no finished review yet: show the policy that will be used
         matches = published_for_code(db, state["case"]["procedure_code"])
         policy = load_version(db, matches[0]["version_id"]) if len(matches) == 1 else None
+    assignee = db.execute(
+        "select user_id, name, role from app.users where user_id = %s",
+        (state["case"]["assigned_to"],),
+    ).fetchone()
     by_id = {f["criterion_id"]: f for f in state["findings"]}
     effective = state["effective"]
     return {
@@ -245,6 +328,7 @@ def detail(case_id: int, principal: Reader, db: Db) -> dict:
             "finished_at": run["finished_at"],
         },
         "runs": runs,
+        "assignee": assignee,
         "decisions": decisions,
     }
 
@@ -381,6 +465,8 @@ def decide(case_id: int, body: DecisionIn, principal: Decider, db: Db) -> dict:
         principal.actor,
         {"decision_id": decision_id, "recommendation": recommendation, "against": against},
     )
+    if body.outcome == "referred":  # it moves to the physicians' queue, to whoever takes it
+        db.execute("update app.cases set assigned_to = null where case_id = %s", (case_id,))
     notify_practice(db, case_id, body.outcome, body.reason.strip())
     return {"decision_id": decision_id, "status": body.outcome, "against_recommendation": against}
 
@@ -421,6 +507,52 @@ def rerun(case_id: int, principal: Reader, db: Db) -> dict:
     if case["status"] not in ("failed", "awaiting_nurse"):
         raise HTTPException(409, f"A case that is {case['status']} cannot be reviewed again")
     return {"run_id": enqueue(db, case_id, principal.actor), "status": "queued"}
+
+
+class AssignIn(BaseModel):
+    user_id: int | None  # null takes the case off whoever has it
+
+
+@router.post("/{case_id}/assign")
+def assign(case_id: int, body: AssignIn, principal: Reader, db: Db) -> dict:
+    """Take a case (a reviewer, for themselves) or hand it to someone (a supervisor)."""
+    supervisor = "assign" in principal.permissions
+    if not supervisor and "review" not in principal.permissions:
+        raise HTTPException(403, f"Your role ({principal.role}) cannot do this")
+    case = db.execute(
+        "select status, assigned_to from app.cases where case_id = %s for update", (case_id,)
+    ).fetchone()
+    if not case:
+        raise HTTPException(404, "No such case")
+    if not supervisor and (
+        body.user_id not in (None, principal.user_id)
+        or case["assigned_to"] not in (None, principal.user_id)
+    ):
+        raise HTTPException(403, "You can take or release your own cases; a supervisor reassigns")
+    if case["status"] in ("approved", "denied"):
+        raise HTTPException(409, "A decided case is not assigned")
+    if body.user_id is not None:
+        person = db.execute(
+            "select role from app.users where user_id = %s and active", (body.user_id,)
+        ).fetchone()
+        if not person or person["role"] not in ("nurse", "physician"):
+            raise HTTPException(409, "Cases go to nurses and physicians")
+        if case["status"] == "referred" and person["role"] != "physician":
+            raise HTTPException(409, "A referred case goes to a physician")
+    db.execute(
+        "update app.cases set assigned_to = %s, assigned_at = case when %s::bigint is null"
+        " then null else now() end where case_id = %s",
+        (body.user_id, body.user_id, case_id),
+    )
+    audit(
+        db,
+        principal.actor,
+        "case.assigned",
+        "case",
+        case_id,
+        {"from": case["assigned_to"], "to": body.user_id},
+    )
+    return {"case_id": case_id, "assigned_to": body.user_id}
 
 
 @router.get("/{case_id}/audit")

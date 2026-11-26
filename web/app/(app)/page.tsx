@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AutoRefresh } from "@/components/auto-refresh";
 import { RecommendationText } from "@/components/badges";
 import { Deadline } from "@/components/deadline";
 import { Icon } from "@/components/icons";
@@ -29,35 +30,58 @@ const FLAG_SHORT: Record<string, string> = {
   approval_concern: "Reason against approval",
 };
 
-export default async function Worklist({
-  searchParams,
-}: {
-  searchParams: Promise<{ view?: string; after?: string }>;
-}) {
-  const { view: requested, after } = await searchParams;
+// Filters that narrow the current tab. Each is one query parameter, switched on and off by a link.
+const FILTERS = [
+  { key: "assigned", value: "me", label: "Mine" },
+  { key: "assigned", value: "none", label: "Unassigned" },
+  { key: "flagged", value: "true", label: "Flagged" },
+  { key: "urgency", value: "expedited", label: "Expedited" },
+  { key: "due_within_hours", value: "24", label: "Due in 24 h" },
+] as const;
+
+type Params = { view?: string; after?: string; q?: string; sort?: string } & Partial<Record<(typeof FILTERS)[number]["key"], string>>;
+
+export default async function Worklist({ searchParams }: { searchParams: Promise<Params> }) {
+  const params = await searchParams;
   const me = await api<Principal>("/auth/me");
   if (me.role === "provider") redirect("/portal"); // a practice has its own front page
   const fallback = me.role === "physician" ? "referred" : "review";
-  const view = VIEWS.find((v) => v.key === requested) ?? VIEWS.find((v) => v.key === fallback)!;
+  const view = VIEWS.find((v) => v.key === params.view) ?? VIEWS.find((v) => v.key === fallback)!;
+  const sort = params.sort === "received" ? "received" : "due";
+
+  // The page's own address without one parameter (or with it changed), for the filter links.
+  const here = (change: Record<string, string | undefined>) => {
+    const next = new URLSearchParams();
+    for (const [k, v] of Object.entries({ ...params, after: undefined, ...change })) if (v) next.set(k, v);
+    return `/?${next}`;
+  };
+
   const query = new URLSearchParams(view.statuses.map((s) => ["status", s]));
   query.set("limit", "50");
-  if (after) query.set("after", after);
+  query.set("sort", sort);
+  for (const key of ["after", "q", "assigned", "flagged", "urgency", "due_within_hours"] as const) {
+    if (params[key]) query.set(key, params[key]!);
+  }
   const [page, summary] = await Promise.all([
     api<{ cases: WorklistRow[]; next: string | null }>(`/cases?${query}`),
-    api<{ by_status: Partial<Record<CaseStatus, number>>; overdue: number }>("/cases/summary"),
+    api<{ by_status: Partial<Record<CaseStatus, number>>; overdue: number; mine: number }>("/cases/summary"),
   ]);
   const count = (statuses: CaseStatus[]) => statuses.reduce((total, s) => total + (summary.by_status[s] ?? 0), 0);
   const open = count(OPEN);
+  const filtered = FILTERS.some((f) => params[f.key] === f.value) || Boolean(params.q);
   // A view of one status says it in its tab; the column only earns its place when statuses mix.
   const showStatus = view.statuses.length > 1;
-  const headings = ["Deadline", "Patient", "Service", "Recommendation", "Flags", ...(showStatus ? ["Status"] : [])];
+  const headings = ["Deadline", "Patient", "Service", "Recommendation", "Flags", "Assigned", ...(showStatus ? ["Status"] : [])];
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
+      {/* Reviews finish and cases arrive while the list is open; it keeps itself current. */}
+      <AutoRefresh seconds={20} />
       <div className="rise flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
         <h1 className="title">Worklist</h1>
         <p className="text-ink-2">
-          {open} open {open === 1 ? "case" : "cases"}, soonest deadline first
+          {open} open {open === 1 ? "case" : "cases"}
+          {summary.mine > 0 && <>, {summary.mine} assigned to you</>}
           {summary.overdue > 0 && (
             <span className="ml-3 inline-flex items-center gap-1.5 font-semibold text-unmet">
               <Icon name="clock" />
@@ -74,7 +98,7 @@ export default async function Worklist({
           return (
             <Link
               key={v.key}
-              href={`/?view=${v.key}`}
+              href={here({ view: v.key })}
               aria-current={current ? "page" : undefined}
               className={`group -mb-px flex h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-sm font-semibold ${
                 current ? "border-ink text-ink" : "border-transparent text-ink-2 hover:text-ink"
@@ -87,16 +111,72 @@ export default async function Worklist({
         })}
       </nav>
 
+      <div className="rise flex flex-wrap items-center gap-x-6 gap-y-3" style={{ "--i": 2 } as React.CSSProperties}>
+        <form role="search" action="/" className="relative w-full sm:w-72">
+          <input type="hidden" name="view" value={view.key} />
+          {params.sort && <input type="hidden" name="sort" value={params.sort} />}
+          <Icon name="search" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-2" />
+          <input
+            type="search"
+            name="q"
+            defaultValue={params.q}
+            maxLength={100}
+            placeholder="Patient, member ID or code"
+            aria-label="Search cases"
+            className="field h-9 py-0 pl-9"
+          />
+        </form>
+        <div role="group" aria-label="Filters" className="flex flex-wrap gap-x-4 gap-y-2">
+          {FILTERS.map((f) => {
+            const on = params[f.key] === f.value;
+            return (
+              <Link
+                key={f.label}
+                href={here({ [f.key]: on ? undefined : f.value })}
+                aria-pressed={on}
+                className={`group text-sm font-semibold ${on ? "text-ink" : "text-ink-2 hover:text-ink"}`}
+              >
+                <span className={`stroke stroke-under ${on ? "" : "[--stroke:var(--color-rule)] group-hover:[background-size:100%_38%]"}`} data-on={on}>
+                  {f.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+        <p className="flex items-center gap-2 text-sm text-ink-2 sm:ml-auto">
+          Sort
+          {(["due", "received"] as const).map((s) => (
+            <Link
+              key={s}
+              href={here({ sort: s === "due" ? undefined : s })}
+              aria-current={sort === s ? "true" : undefined}
+              className={`rounded-md px-2 py-1 font-semibold ${sort === s ? "bg-paper text-ink shadow-[inset_0_0_0_1px_var(--color-rule)]" : "hover:text-ink"}`}
+            >
+              {s === "due" ? "Deadline" : "Newest"}
+            </Link>
+          ))}
+        </p>
+      </div>
+
       {page.cases.length === 0 ? (
-        <div className="rise sheet bg-tint px-6 py-14 text-center" style={{ "--i": 2 } as React.CSSProperties}>
-          <p className="font-serif text-xl font-semibold">Nothing here right now.</p>
+        <div className="rise sheet bg-tint px-6 py-14 text-center" style={{ "--i": 3 } as React.CSSProperties}>
+          <p className="font-serif text-xl font-semibold">{filtered ? "No case matches." : "Nothing here right now."}</p>
           <p className="mt-1 text-ink-2">
-            No cases are {view.label.toLowerCase()}. New requests appear in Ready for nurse once their automated review finishes.
+            {filtered ? (
+              <>
+                Nothing {view.label.toLowerCase()} fits the search and filters.{" "}
+                <Link href={`/?view=${view.key}`} className="font-semibold text-accent hover:underline">
+                  Clear them
+                </Link>
+              </>
+            ) : (
+              <>No cases are {view.label.toLowerCase()}. New requests appear in Ready for nurse once their automated review finishes.</>
+            )}
           </p>
         </div>
       ) : (
         <div className="sheet overflow-hidden">
-          <table className="w-full text-left text-sm md:min-w-[860px]">
+          <table className="w-full text-left text-sm md:min-w-[960px]">
             <thead className="border-b border-rule text-ink-2 max-md:hidden">
               <tr>
                 {headings.map((h) => (
@@ -109,11 +189,12 @@ export default async function Worklist({
             <tbody>
               {page.cases.map((row, i) => {
                 const closed = row.status === "approved" || row.status === "denied";
+                const mine = row.assigned_to === me.user_id;
                 return (
                   <tr
                     key={row.case_id}
                     className="rise relative border-b border-rule transition-colors duration-150 last:border-0 hover:bg-tint hover:shadow-[inset_3px_0_0_var(--color-marker-strong)] max-md:grid max-md:grid-cols-2 max-md:gap-x-4 max-md:gap-y-2 max-md:px-4 max-md:py-4"
-                    style={{ "--i": i + 2 } as React.CSSProperties}
+                    style={{ "--i": i + 3 } as React.CSSProperties}
                   >
                     <td className="px-4 py-3.5 align-top max-md:order-2 max-md:p-0">
                       <Deadline receivedAt={row.received_at} dueAt={row.due_at} closed={closed} />
@@ -149,8 +230,11 @@ export default async function Worklist({
                         </ul>
                       ) : null}
                     </td>
+                    <td className="px-4 py-3.5 align-top max-md:order-6 max-md:p-0 max-md:empty:hidden">
+                      {row.assigned_name && <span className={mine ? "font-semibold" : ""}>{mine ? "You" : row.assigned_name}</span>}
+                    </td>
                     {showStatus && (
-                      <td className="px-4 py-3.5 align-top text-ink-2 max-md:order-6 max-md:p-0">{STATUS_LABEL[row.status]}</td>
+                      <td className="px-4 py-3.5 align-top text-ink-2 max-md:order-7 max-md:p-0">{STATUS_LABEL[row.status]}</td>
                     )}
                   </tr>
                 );
@@ -160,7 +244,7 @@ export default async function Worklist({
         </div>
       )}
       {page.next && (
-        <Link href={`/?view=${view.key}&after=${encodeURIComponent(page.next)}`} className="btn">
+        <Link href={here({ after: page.next })} className="btn">
           Next page
         </Link>
       )}

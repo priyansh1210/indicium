@@ -56,6 +56,8 @@ export type WorklistRow = {
   recommendation: Recommendation | null;
   flags: string[] | null;
   policy_title: string | null;
+  assigned_to: number | null;
+  assigned_name: string | null;
 };
 
 export type Evidence = { doc_id: string; quote: string; start: number; end: number };
@@ -124,6 +126,7 @@ export type CaseDetail = {
     finished_at: string;
   } | null;
   runs: { run_id: number; status: string; attempts: number; error: string | null }[];
+  assignee: { user_id: number; name: string; role: Role } | null;
   decisions: {
     decision_id: number;
     outcome: string;

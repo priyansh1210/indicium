@@ -83,7 +83,7 @@ test("a nurse pends a practice's request; the practice reads why and sends docum
   await page.getByText("Pend for information", { exact: true }).last().click();
   await page.getByLabel(/Reason \(sent with the decision/).fill("Please send the physical therapy notes from the last six weeks.");
   await page.getByRole("button", { name: "Record decision" }).click();
-  await expect(page.getByText(/pended by Avery Nurse/i)).toBeVisible();
+  await expect(page.getByText(/pended by Avery Nurse/i).last()).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
 
   await sampleSignIn(page, /Sam Okafor/);

@@ -42,3 +42,7 @@ export async function decide(
 export async function reviewAgain(caseId: number): Promise<FormState> {
   return attempt(() => api(`/cases/${caseId}/review`, { method: "POST" }));
 }
+
+export async function assignCase(caseId: number, userId: number | null): Promise<FormState> {
+  return attempt(() => api(`/cases/${caseId}/assign`, { method: "POST", body: JSON.stringify({ user_id: userId }) }));
+}
