@@ -85,6 +85,7 @@ test("a nurse pends a practice's request; the practice reads why and sends docum
   await page.getByRole("button", { name: "Record decision" }).click();
   await expect(page.getByText(/pended by Avery Nurse/i).last()).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login/); // signing out has finished before the next step
 
   await sampleSignIn(page, /Sam Okafor/);
   await expect(page.getByRole("heading", { name: "Requests", exact: true })).toBeVisible();

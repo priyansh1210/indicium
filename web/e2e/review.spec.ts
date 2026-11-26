@@ -41,6 +41,7 @@ test("a nurse corrects an item and refers; a physician denies", async ({ page })
 
   // The physician finds it in their queue and denies it, with a reason.
   await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login/); // signing out has finished before the next step
   await signInAs(page, "Jordan Physician");
   await page.getByRole("link", { name: patient }).click();
   await page.getByText("Deny", { exact: true }).click();

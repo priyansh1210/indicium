@@ -61,6 +61,7 @@ test("an admin invites a nurse, who sets a password, turns on two-step sign-in a
   await expect(page.getByText(`Invitation sent to ${email}.`)).toBeVisible();
   await expect(page.getByRole("row").filter({ hasText: email })).toContainText("Invited");
   await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login/); // signing out has finished before the next step
 
   // The nurse opens the emailed link and chooses a password.
   await page.goto(await linkFromEmail(request, email, []));
@@ -80,12 +81,14 @@ test("an admin invites a nurse, who sets a password, turns on two-step sign-in a
   await page.getByRole("button", { name: "Turn on two-step sign-in" }).click();
   await expect(page.getByText("Two-step sign-in is on.")).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login/); // signing out has finished before the next step
 
   await signIn(page, email, "taylor-first-password");
   await page.getByLabel("Code from your authenticator app").fill(totp(secret, 1)); // the next code: each works once
   await page.getByRole("button", { name: "Verify and sign in" }).click();
   await expect(page.getByRole("heading", { name: "Worklist" })).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login/); // signing out has finished before the next step
 
   // Forgotten password: the same answer for any address, a link by email, then a new password.
   const earlier = await emailIds(request, email);
