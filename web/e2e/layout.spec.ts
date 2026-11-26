@@ -61,3 +61,23 @@ test("provider portal screens fit the viewport", async ({ page }) => {
     await fits(page);
   }
 });
+
+test.describe("on a device set to dark", () => {
+  test.use({ colorScheme: "dark" });
+
+  test("the theme follows the device until a choice is saved", async ({ page }) => {
+    const theme = () => page.locator("html").getAttribute("data-theme");
+    await page.goto("/login");
+    expect(await theme()).toBe("dark");
+    await page.getByText("Exploring Indicium? Use a sample account").click();
+    await page.getByRole("button", { name: /Avery Nurse/ }).click();
+    await expect(page.getByRole("heading", { name: "Worklist" })).toBeVisible();
+    await page.goto("/account");
+    await page.getByText("Light", { exact: true }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light"); // kept, before paint
+    await page.getByText("Same as device").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+});

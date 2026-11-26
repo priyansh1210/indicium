@@ -188,8 +188,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       return (
                         <td key={o.key} className="p-0.5">
                           <span
-                            className={`flex h-10 items-center justify-center rounded-md ${expected ? "ring-1 ring-ink/30 ring-inset" : ""} ${n / cellMax > 0.55 ? "text-paper" : "text-ink"}`}
-                            style={{ backgroundColor: n ? `color-mix(in oklab, var(--color-chart) ${Math.round(12 + (n / cellMax) * 78)}%, var(--color-paper))` : "var(--color-tint)" }}
+                            className={`flex h-10 items-center justify-center rounded-md text-ink ${expected ? "ring-1 ring-ink/30 ring-inset" : ""}`}
+                            // At most 55% of the chart hue, so ink stays AA on every cell in both themes.
+                            style={{ backgroundColor: n ? `color-mix(in oklab, var(--color-chart) ${Math.round(8 + (n / cellMax) * 47)}%, var(--color-paper))` : "var(--color-tint)" }}
                             title={`${RECOMMENDATION_LABEL[r]} → ${o.label}: ${n}`}
                           >
                             {n || <span className="text-ink-2">0</span>}

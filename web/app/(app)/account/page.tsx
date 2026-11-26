@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { api } from "@/lib/api";
+import { ThemeChoice } from "@/components/theme";
 import { ROLE_DUTY, day, moment } from "@/lib/format";
 import type { Role } from "@/lib/types";
 
@@ -56,6 +57,9 @@ export default async function AccountPage() {
         about="After your password, Indicium also asks for a six-digit code from an authenticator app on your phone."
       >
         <MfaSection enabled={me.mfa_enabled} />
+      </Section>
+      <Section title="Appearance" about="Light or dark. Unless you choose, it follows this device's setting. Kept on this device.">
+        <ThemeChoice />
       </Section>
       <Section
         title="Devices"

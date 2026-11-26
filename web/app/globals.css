@@ -1,14 +1,19 @@
 @import "tailwindcss";
 
+/* dark: follows the theme chosen on <html>, not only the device (see THEME in lib/theme.ts). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* Tokens: see DESIGN.md. Every text pair is WCAG AA. */
 @theme {
   --color-canvas: #f3f1ec;
   --color-paper: #ffffff;
   --color-tint: #f7f5f0;
   --color-ink: #1d1c1a;
+  --color-ink-hover: #34322e;
   --color-ink-2: #5b5852;
   --color-ink-3: #8a857c;
   --color-rule: #e4e0d8;
+  --color-rule-strong: #d3cec4;
   --color-accent: #2a4f7a;
   --color-accent-soft: #e6edf5;
   --color-marker: #fceb9c;
@@ -31,6 +36,36 @@
 
   /* One easing family for the whole product: quick out, long settle. */
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Dark: the same roles with their own steps, not a flip. Every text pair is WCAG AA here too, and
+   the chart pair was validated against the dark sheet with the dataviz palette script.
+   The theme is set on <html> before the first paint (THEME in components/theme.tsx). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: #161513;
+  --color-paper: #1f1e1b;
+  --color-tint: #262420;
+  --color-ink: #ece8e0;
+  --color-ink-hover: #d4cfc5;
+  --color-ink-2: #aaa498;
+  --color-ink-3: #77726a;
+  --color-rule: #34322d;
+  --color-rule-strong: #4a4740;
+  --color-accent: #8fb4e3;
+  --color-accent-soft: #1c2a3b;
+  --color-marker: #4a3d12;
+  --color-marker-strong: #6e5a17;
+  --color-met: #7cc497;
+  --color-met-soft: #172a1e;
+  --color-unmet: #f0907f;
+  --color-unmet-soft: #361b16;
+  --color-missing: #deb050;
+  --color-missing-soft: #2f2511;
+  --color-conflict: #bea0e6;
+  --color-conflict-soft: #281e36;
+  --color-chart: #6f9fd8;
+  --color-chart-muted: #736e66;
 }
 
 html {
@@ -111,7 +146,7 @@ body {
   }
   .btn:hover:not(:disabled) {
     background: var(--color-tint);
-    border-color: #d3cec4;
+    border-color: var(--color-rule-strong);
   }
   .btn:active:not(:disabled) {
     transform: translateY(1px);
@@ -126,8 +161,8 @@ body {
     color: var(--color-paper);
   }
   .btn-primary:hover:not(:disabled) {
-    background: #34322e;
-    border-color: #34322e;
+    background: var(--color-ink-hover);
+    border-color: var(--color-ink-hover);
   }
   .field {
     width: 100%;
@@ -138,7 +173,7 @@ body {
     transition: border-color 160ms var(--ease-out);
   }
   .field:hover {
-    border-color: #d3cec4;
+    border-color: var(--color-rule-strong);
   }
   .field:focus-visible {
     outline-offset: 0;

@@ -178,13 +178,13 @@ export default async function Welcome() {
           </div>
         </section>
 
-        <section aria-labelledby="try-heading" className="border-t border-rule bg-ink text-paper">
+        <section aria-labelledby="try-heading" className="border-t border-rule bg-ink text-paper dark:bg-tint dark:text-ink">
           <div className="mx-auto flex max-w-[1280px] flex-col items-start gap-8 px-4 py-20 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:py-28">
             <h2 id="try-heading" data-split className="display max-w-[18ch] text-[clamp(36px,5vw,64px)]">
               <Split text="Open a case and check the evidence yourself." />
             </h2>
             <div data-reveal className="max-w-sm">
-              <p className="text-paper/75">
+              <p className="text-paper/75 dark:text-ink-2">
                 Sample accounts on the sign-in page open each side: a nurse, a physician, a supervisor, an
                 admin, or a practice sending requests. Every patient is synthetic.
               </p>
@@ -193,7 +193,7 @@ export default async function Welcome() {
                   {cta.label}
                 </Link>
                 {!signedIn && (
-                  <Link href="/register" className="text-[15px] font-semibold text-paper underline decoration-marker-strong decoration-2 underline-offset-[6px] hover:decoration-paper">
+                  <Link href="/register" className="text-[15px] font-semibold text-paper underline decoration-marker-strong decoration-2 underline-offset-[6px] hover:decoration-paper dark:text-ink dark:hover:decoration-ink">
                     Register a practice
                   </Link>
                 )}

@@ -135,6 +135,8 @@ Reviewers and practices have notifications behind a bell in the top bar: a case 
 documents arriving on a case you hold or decided, a case of yours due within a day, and, for a
 practice, a decision on its request.
 
+The interface follows the device's light or dark setting; Account → Appearance overrides it.
+
 ### With a language model
 
 Any OpenAI-compatible endpoint works. For a local model with llama.cpp:

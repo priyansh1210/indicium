@@ -97,7 +97,7 @@ export function DailyColumns({ days, label }: { days: Day[]; label: string }) {
       {shown && (
         <div
           role="status"
-          className="pointer-events-none absolute top-0 z-10 w-44 rounded-lg border border-rule bg-paper px-3 py-2 text-[13px] shadow-[0_6px_18px_rgb(29_28_26/0.08)]"
+          className="pointer-events-none absolute top-0 z-10 w-44 rounded-lg border border-rule bg-paper px-3 py-2 text-[13px] shadow-[0_6px_18px_rgb(0_0_0/0.12)]"
           style={{
             left: `clamp(0px, calc(${((pad.left + band * active! + band / 2) / W) * 100}% - 88px), calc(100% - 176px))`,
           }}

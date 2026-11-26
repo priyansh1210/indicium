@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Public_Sans, Source_Serif_4 } from "next/font/google";
 
+import { THEME } from "@/lib/theme";
+
 import "./globals.css";
 
 const sans = Public_Sans({ subsets: ["latin"], variable: "--font-public-sans" });
@@ -20,7 +22,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
+    // The theme script sets data-theme on <html> before React sees it, hence the warning switch.
+    <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME }} />
+      </head>
       <body>{children}</body>
     </html>
   );

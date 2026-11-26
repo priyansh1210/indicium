@@ -99,8 +99,9 @@ export function MfaSection({ enabled }: { enabled: boolean }) {
         <li>
           In an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password and others), add an account
           by scanning this code.
-          {/* The QR code is SVG drawn by the API (segno) from the secret, not user content. */}
-          <div className="mt-3 w-fit rounded-lg border border-rule bg-paper p-2 [&_svg]:size-44" dangerouslySetInnerHTML={{ __html: setup.qr_svg! }} />
+          {/* The QR code is SVG drawn by the API (segno) from the secret, not user content. It stays on
+              white in dark mode too: scanners read dark modules on a light ground. */}
+          <div className="mt-3 w-fit rounded-lg border border-rule bg-white p-2 [&_svg]:size-44" dangerouslySetInnerHTML={{ __html: setup.qr_svg! }} />
         </li>
         <li>
           No camera? Type this key instead:

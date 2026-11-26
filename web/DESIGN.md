@@ -52,6 +52,14 @@ through next/font.
 | ink-3 | #8A857C | large text only (inactive step titles); fails AA below 18px |
 | chart / chart-muted | #3B6AA3 / #B3ADA2 | result bars and every dashboard chart: one hue, muted for context (dataviz validator: lightness and CVD pass) |
 
+Dark mode keeps every role and gives it its own step (values in `globals.css`), not a flip:
+warm near-black sheets (#1F1E1B on #161513), cream ink, a darker amber marker under cream text,
+and lighter status inks. Every text pair passes AA again; the chart pair #6F9FD8 / #736E66 passed
+the dataviz validator against the dark sheet. The theme follows the device until someone picks
+Light or Dark under Account → Appearance (kept on the device), and it is set before the first
+paint. Inverted pieces (the welcome page's closing band) stay dark in dark mode (`dark:` variant)
+rather than turning into a bright block; the two-step QR code always sits on white.
+
 Status colours appear only with their word beside them, never as decoration.
 
 ## Layout
